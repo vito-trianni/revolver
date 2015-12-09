@@ -1,0 +1,17 @@
+#include <argos3/core/utility/math/range.h>
+#include <argos3/core/utility/math/rng.h>
+#include <argos3/core/utility/math/angles.h>
+#include <argos3/core/utility/math/general.h>
+#include <argos3/core/utility/logging/argos_log.h>
+#include <argos3/core/utility/logging/argos_colored_text.h>
+#include <argos3/core/utility/string_utilities.h>
+#include <argos3/core/utility/datatypes/datatypes.h>
+#include <argos3/core/utility/configuration/argos_exception.h>
+#include <argos3/core/utility/configuration/argos_configuration.h>
+#include <argos3/core/utility/configuration/base_configurable_resource.h>
+#include <argos3/core/utility/configuration/argos_command_line_arg_parser.h>
+#include <argos3/core/utility/plugins/factory.h>
+#include <argos3/core/utility/plugins/factory_impl.h>
+
+# The following should not be included in my eyes
+#include <argos3/core/utility/plugins/dynamic_loading.h>
