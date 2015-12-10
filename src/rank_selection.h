@@ -3,7 +3,7 @@
 #ifndef RANK_SELECTION_H
 #define RANK_SELECTION_H
 
-#include <revolver/selection_strategy.h>
+#include <src/selection_strategy.h>
 
 using namespace std;
 using namespace argos;

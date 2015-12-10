@@ -24,7 +24,7 @@
  * @author Vito Trianni - <vito.trianni@istc.cnr.it>
  */
 
-#include <argos3/core/config.h>
+//#include <argos3/core/config.h>
 
 #ifdef ARGOS_USE_DOUBLE
 #define MPI_ARGOSREAL MPI_DOUBLE

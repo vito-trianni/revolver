@@ -1,6 +1,6 @@
 #include "selection_strategy.h"
 
-#include <revolver/population.h>
+#include <src/population.h>
 
 const string CONFIGURATION_SELECTION_ELITE     = "elite_size";
 

@@ -3,14 +3,14 @@
 #ifndef EVALUATION_STRATEGY_H
 #define EVALUATION_STRATEGY_H
 
-#include <argos3/core/utility/configuration/base_configurable_resource.h>
-#include <argos3/core/utility/datatypes/datatypes.h>
-#include <argos3/core/utility/logging/argos_log.h>
+#include <argos_utility/configuration/base_configurable_resource.h>
+#include <argos_utility/datatypes/datatypes.h>
+#include <argos_utility/logging/argos_log.h>
 
 #include <utility/control_parameters.h>
 #include <utility/evaluation_config.h>
 
-#include <revolver/population.h>
+#include <src/population.h>
 
 class CEvaluationStrategy : public CBaseConfigurableResource {
 protected:

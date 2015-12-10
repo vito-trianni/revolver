@@ -4,8 +4,8 @@
 #include <utility/control_parameters.h>
 #include <utility/objectives.h>
 #include <utility/vector.h>
-#include <argos3/core/utility/math/range.h>
-#include <argos3/core/utility/math/rng.h>
+#include <argos_utility/math/range.h>
+#include <argos_utility/math/rng.h>
 
 #include <utility>
 

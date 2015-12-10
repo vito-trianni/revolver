@@ -1,5 +1,5 @@
-#include <argos3/core/simulator/argos_command_line_arg_parser.h>
-#include <argos3/core/utility/plugins/dynamic_loading.h>
+#include <argos_utility/configuration/command_line_arg_parser.h>
+//#include <argos3/core/utility/plugins/dynamic_loading.h>
 
 #include "evolution.h"
 
@@ -137,7 +137,7 @@ int main( int argc, char** argv ) {
       pc_evolution->Evolve();
    }
 
-   CDynamicLoading::UnloadAllLibraries();
+   //CDynamicLoading::UnloadAllLibraries();
    CFactory<CEvolution>::Destroy();
 
    delete pc_evolution;

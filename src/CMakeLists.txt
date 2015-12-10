@@ -23,48 +23,28 @@ set(revolver_IMPLEMENTATIONS
 
 add_executable(revolver ${revolver_IMPLEMENTATIONS})
 target_link_libraries(revolver
+   utility
+   argos_utility
 #  shark
-  evolutionary_lf
-  evolutionary_controller
   ${MPI_CXX_LINK_FLAGS}
   ${MPI_CXX_LIBRARIES}
-  argos3core_simulator
-  argos3plugin_simulator_actuators
-  argos3plugin_simulator_dynamics2d
-  argos3plugin_simulator_entities
-  # argos3plugin_simulator_epuck
-  argos3plugin_simulator_footbot
-  argos3plugin_simulator_genericrobot
-  argos3plugin_simulator_media
-  argos3plugin_simulator_qtopengl
-  argos3plugin_simulator_sensors
   )
 
 add_definitions(${MPI_CXX_COMPILE_FLAGS})
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
-set(invalid_IMPLEMENTATIONS
-  invalid_main.cpp 
-  )
+# Commenting invalid for the time being. I think we will need to re-implement it from scratch
 
-add_executable(invalid ${invalid_IMPLEMENTATIONS})
-target_link_libraries(invalid
-  evolutionary_lf
-  evolutionary_controller
-  utility
-  ${MPI_CXX_LINK_FLAGS}
-  ${MPI_CXX_LIBRARIES}
-  argos3core_simulator
-  argos3plugin_simulator_actuators
-  argos3plugin_simulator_dynamics2d
-  argos3plugin_simulator_entities
-  # argos3plugin_simulator_epuck
-  argos3plugin_simulator_footbot
-  argos3plugin_simulator_genericrobot
-  argos3plugin_simulator_media
-  argos3plugin_simulator_qtopengl
-  argos3plugin_simulator_sensors
-  )
+# set(invalid_IMPLEMENTATIONS
+#  invalid_main.cpp 
+#  )
+
+# add_executable(invalid ${invalid_IMPLEMENTATIONS})
+# target_link_libraries(invalid
+#  utility
+#  ${MPI_CXX_LINK_FLAGS}
+#  ${MPI_CXX_LIBRARIES}
+#  )
 
 
 

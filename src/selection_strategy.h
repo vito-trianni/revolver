@@ -3,11 +3,11 @@
 #ifndef SELECTION_STRATEGY_H
 #define SELECTION_STRATEGY_H
 
-#include <argos3/core/utility/plugins/factory.h>
-#include <argos3/core/utility/configuration/base_configurable_resource.h>
-#include <argos3/core/utility/logging/argos_log.h>
+#include <argos_utility/plugins/factory.h>
+#include <argos_utility/configuration/base_configurable_resource.h>
+#include <argos_utility/logging/argos_log.h>
 
-#include <revolver/genotype.h>
+#include <src/genotype.h>
 
 
 

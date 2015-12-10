@@ -3,10 +3,10 @@
 #ifndef EVOLUTION_H
 #define EVOLUTION_H
 
-#include <argos3/core/utility/plugins/factory.h>
-#include <argos3/core/utility/configuration/base_configurable_resource.h>
-#include <argos3/core/utility/datatypes/datatypes.h>
-#include <argos3/core/utility/logging/argos_log.h>
+#include <argos_utility/plugins/factory.h>
+#include <argos_utility/configuration/base_configurable_resource.h>
+#include <argos_utility/datatypes/datatypes.h>
+#include <argos_utility/logging/argos_log.h>
 
 #include <utility/objectives.h>
 
@@ -19,7 +19,7 @@
 #include <map>
 #include <limits.h>
 
-#include <Rng/GlobalRng.h>
+//#include <Rng/GlobalRng.h>
 
 #include "revolver_general.h"
 #include "population.h"
