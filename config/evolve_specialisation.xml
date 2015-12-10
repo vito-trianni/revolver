@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<morevolver-configuration>
+<evolution
+  type = "sequential"
+  max_generation = "100"
+  save_generation_step = "1"
+  num_generation = "0"
+  evolution_basefile = "revolver"
+  evaluation_basefile = "evaluation"
+  fitness_basefile = "fitness"
+  bestind_basefile = "bestind"
+  num_processes = "1"
+  experiment = "specialisation/specialisation_evoconfig.xml">
+  <population 
+    type="soo_population"	
+    population_size = "100"
+    genotype_size = "4"
+    gene_value_range = "0:1"
+    mutation_variance = "0.05"
+    num_objectives = "3">
+    <selection
+      type="roulette"
+      elite_size = "5"
+      mu = "25" />
+  </population>
+  <evaluation
+    type="aclonal"
+    samples_per_team = "1"
+    team_size = "2"
+    num_samples = "10" />
+
+</evolution>
+</morevolver-configuration>

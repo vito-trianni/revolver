@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="120" ticks_per_second="10" />
+  </framework>
+
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers>
+    <specialisation_controller id="nn" library="build/specialisation/libspecialisation.so">
+      <actuators>
+        <differential_steering implementation="default" />
+      </actuators>
+
+      <sensors>
+        <footbot_proximity implementation="default"  noise_level="0.05" show_rays="true" />
+        <colored_blob_omnidirectional_camera implementation="rot_z_only" medium="leds" blob_noise_std_dev="0.05" check_occlusions="false" show_rays="false" />
+      </sensors>
+
+      <params speed_range="-20:20"
+            noise_limit_ir="0.1"
+            saturation_ir="2"
+            avoidance_gain="0.5"
+            exploration_std="0.5"
+            exploration_step="10"
+            exploration_gain="0.1"
+            camera_range="0:100"
+            saturation_red="5"
+            saturation_green="5"
+            saturation_blue="5">
+        <vision_control	num_inputs="1"
+                    	num_outputs="2"
+                      weight_range="-5:5" />
+      </params>
+
+    </specialisation_controller>
+
+  </controllers>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions 
+     library="build/specialisation/libspecialisation.so" 
+     label="specialisation_lf" 
+     max_init_trials = "100"
+     min_init_distance = "0.25"
+     init_range = "0.25:0.75"
+     max_robot_speed = "20"
+     arena_radius = "3"
+     num_arena_walls = "24"
+     beacon_min_distance = "2"
+     proximity_radius = "0.5"
+     specialisation_bias = "-1">
+  </loop_functions>
+
+
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <!-- Note: rotations are specified and performed in ZYX order (opposite of ARGoS1) -->
+  <arena size="6,6,3" center="0,0,1" positional_grid_size="6,6,3">
+    <light id="beacon_g"
+           position="0,0,0"
+           orientation="0,0,0"
+           color="green"
+           intensity="1.0"
+           medium="leds"/>
+    <light id="beacon_r"
+           position="0,0,0"
+           orientation="0,0,0"
+           color="red"
+           intensity="1.0"
+           medium="leds"/>
+    <floor id="floor" source="loop_functions" pixels_per_meter="100" />
+  </arena>
+
+
+  <!-- ******************* -->
+  <!-- * Media           * -->
+  <!-- ******************* -->
+  <media>
+    <led id="leds" grid_size="4,4,3" />
+  </media>
+
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics2d id="dyn2d"/>
+  </physics_engines>
+
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+  </visualization>
+
+</argos-configuration>
