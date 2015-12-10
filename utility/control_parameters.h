@@ -1,10 +1,10 @@
 #ifndef _CCONTROLPARAMETERS_H_
 #define _CCONTROLPARAMETERS_H_
 
-#include <argos3/core/utility/math/range.h>
-#include <argos3/core/utility/logging/argos_log.h>
-#include <argos3/core/utility/datatypes/datatypes.h>
-#include <argos3/core/utility/configuration/argos_exception.h>
+#include "../argos_utility/math/range.h"
+#include "../argos_utility/logging/argos_log.h"
+#include "../argos_utility/datatypes/datatypes.h"
+#include "../argos_utility/configuration/argos_exception.h"
 
 #include <fstream>
 #include "vector.h"

@@ -5,10 +5,10 @@
 
 #include <limits.h>
 
-#include <argos3/core/utility/configuration/base_configurable_resource.h>
-#include <argos3/core/utility/datatypes/datatypes.h>
-#include <argos3/core/utility/logging/argos_log.h>
-#include <argos3/core/utility/math/rng.h>
+#include "../argos_utility/configuration/base_configurable_resource.h"
+#include "../argos_utility/datatypes/datatypes.h"
+#include "../argos_utility/logging/argos_log.h"
+#include "../argos_utility/math/rng.h"
 
 #include "vector.h"
 #include "objectives.h"

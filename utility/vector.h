@@ -3,8 +3,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <argos3/core/utility/logging/argos_log.h>
-#include <argos3/core/utility/configuration/argos_exception.h>
+#include "../argos_utility/logging/argos_log.h"
+#include "../argos_utility/configuration/argos_exception.h"
 
 using namespace argos;
 using namespace std;
