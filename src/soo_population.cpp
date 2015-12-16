@@ -125,7 +125,7 @@ void CSOOPopulation::Dump( const string& filename ) {
    // open the output stream
    ofstream out( filename.c_str(), ios::out );
    if( !out ) {
-      THROW_ARGOSEXCEPTION( "Could not open file" << filename << " for dumping population" );
+      THROW_ARGOSEXCEPTION( "Could not open file " << filename << " for dumping population" );
    }
 
    for( UInt32 i = 0; i < m_unPopulationSize; ++i ) {

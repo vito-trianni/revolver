@@ -15,7 +15,7 @@
 #include <iomanip>
 
 
-#include <mpi.h>
+
 #include <map>
 #include <limits.h>
 

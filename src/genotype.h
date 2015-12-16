@@ -43,6 +43,8 @@ class CGenotype : public CControlParameters {
    
    void MutateNormal( const Real f_mutation_variance );
    void CutOff();
+   void CutOffMin();
+   void CutOffMax();
    inline void Reset() {m_cPerformance.Reset(); m_cAncestors.Reset();};
    inline void InsertAncestor(UInt32 un_index) {m_cAncestors.Insert(un_index);};
 

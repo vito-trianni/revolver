@@ -5,6 +5,8 @@
 
 #include "evolution.h"
 
+#include <mpi.h>
+
 using namespace std;
 using namespace argos;
 
@@ -19,6 +21,8 @@ class CParallelEvolution : public CEvolution {
    MPI::Intercomm m_cEvaluatorComm;
 
    UInt32* m_punEvaluationSeeds;
+   
+   string m_sInvalidName;
 
  public:
    CParallelEvolution();

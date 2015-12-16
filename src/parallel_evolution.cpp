@@ -1,6 +1,7 @@
 #include "parallel_evolution.h"
 
 const string CONFIGURATION_EVOLUTION_NUMPROCESSES    = "num_processes";
+const string CONFIGURATION_EVOLUTION_INVALID_NAME    = "invalid_name";
 
 /****************************************/
 /****************************************/
@@ -9,6 +10,7 @@ CParallelEvolution::CParallelEvolution() :
    CEvolution(),
    m_unNumProcesses(),
    m_unMsgTag(),
+   m_sInvalidName("build/revolver/invalid"),
    m_punEvaluationSeeds(NULL)
 {}
 
@@ -32,6 +34,12 @@ void CParallelEvolution::Init( TConfigurationNode& t_configuration_tree ) {
    // number of parallel processes
    ////////////////////////////////////////////////////////////////////////////////
    GetNodeAttributeOrDefault(t_configuration_tree, CONFIGURATION_EVOLUTION_NUMPROCESSES, m_unNumProcesses, m_unNumProcesses );
+   
+   ////////////////////////////////////////////////////////////////////////////////
+   // name of "invalid simulator"
+   ////////////////////////////////////////////////////////////////////////////////
+   GetNodeAttributeOrDefault(t_configuration_tree, CONFIGURATION_EVOLUTION_INVALID_NAME, m_sInvalidName, m_sInvalidName );
+   
 }
 
 
@@ -57,7 +65,7 @@ void CParallelEvolution::StartEvaluationProcess() {
    ////////////////////////////////////////////////////////////////////////////////
    // build arguments vector
    char** c_args = new char*[6];
-   c_args[0] = strdup("build/revolver/invalid");
+   c_args[0] = strdup(m_sInvalidName.c_str());
    c_args[1] = strdup("-c");
    c_args[2] = strdup((m_sWorkingDir+"/"+m_sExperimentConfigurationFile).c_str());
    c_args[3] = strdup( "-d" );;
@@ -147,9 +155,9 @@ void CParallelEvolution::EvaluatePopulation() {
       // every time there are less queued evaluations than the maximum
       // number, stated in numProcesses, start another one
       while( (queued < m_unNumProcesses) && (ind < m_pcPopulation->GetSize()) ) {
-	 SendIndividualParameters( ind ); // send the individual genotype to the evaluation program
-	 queued  += 1;
-	 ind += 1;
+	      SendIndividualParameters( ind ); // send the individual genotype to the evaluation program
+	      queued  += 1;
+	      ind += 1;
       }
     
       // wait for any results: receive message and add fitness values
@@ -166,12 +174,10 @@ void CParallelEvolution::EvaluatePopulation() {
 void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    // search for the first available process
    SInt32 tid = -1;
-   for( TMapProcessToIndividualIterator it = m_mapProcessToIndividual.begin(); 
-	it != m_mapProcessToIndividual.end(); 
-	++it ) {
+   for( TMapProcessToIndividualIterator it = m_mapProcessToIndividual.begin(); it != m_mapProcessToIndividual.end();	++it ) {
       if( it->second == -1 ) {
-	 tid = it->first;
-	 break;
+	      tid = it->first;
+	      break;
       }
    }
 
@@ -189,7 +195,7 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    for( UInt32 i = 0; i < pc_evaluation_config->GetNumTeams(); i++ ) {
       TTeam team = pc_evaluation_config->GetTeam(i);
       for( UInt32 j = 0; j < pc_evaluation_config->GetTeamSize(); j++ ) {
-	 pun_teams[i*pc_evaluation_config->GetTeamSize()+j] = team[j];
+	      pun_teams[i*pc_evaluation_config->GetTeamSize()+j] = team[j];
       }      
    }
    m_cEvaluatorComm.Send(pun_teams, pc_evaluation_config->GetNumTeams()*pc_evaluation_config->GetTeamSize(), MPI_INT, tid, 1);
@@ -199,11 +205,19 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    TMapParamters map_controllers = pc_evaluation_config->GetMapControlParameters();
    Real pf_control_parameters[m_pcPopulation->GetGenotypeSize()];
    m_cEvaluatorComm.Send(&unNumControllers, 1, MPI_INT, tid, 1);
+   
+   
+   
    for( TMapParamtersIterator it = map_controllers.begin(); it != map_controllers.end(); ++it ) {
       UInt32 un_index = it->first;
-      it->second.Insert(m_pcPopulation->GetGenotypeSize(),pf_control_parameters);
+      
+      vector<Real> values = it->second.GetValues();
+      std::copy(values.begin(), values.end(), pf_control_parameters);
+      
+      //it->second.Insert(m_pcPopulation->GetGenotypeSize(),pf_control_parameters);
       m_cEvaluatorComm.Send(&un_index, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);
+      
    }
 
    // sending evaluation random seeds

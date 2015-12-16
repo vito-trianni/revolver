@@ -89,6 +89,24 @@ void CGenotype::CutOff() {
 /****************************************/
 /****************************************/
 
+void CGenotype::CutOffMin() {
+   for( UInt32 i = 0; i < GetSize(); ++i ) {
+      if (m_vecElements[i] < m_cParametersRange.GetMin()) m_vecElements[i] = m_cParametersRange.GetMin();
+   }
+}
+
+/****************************************/
+/****************************************/
+
+void CGenotype::CutOffMax() {
+   for( UInt32 i = 0; i < GetSize(); ++i ) {
+      if (m_vecElements[i] > m_cParametersRange.GetMax()) m_vecElements[i] = m_cParametersRange.GetMax();
+   }
+}
+
+/****************************************/
+/****************************************/
+
 CGenotype& CGenotype::operator=( const CGenotype& params ) {
    if( this != &params ) {
       m_cPerformance = params.m_cPerformance;
