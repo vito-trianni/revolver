@@ -12,15 +12,15 @@
 
 #include "vector.h"
 #include "objectives.h"
-#include "control_parameters.h"
+#include "genotype.h"
 
 using namespace argos;
 using namespace std;
 
 typedef CVector<UInt32> TTeam;
 typedef vector<TTeam>  TVecTeams;
-typedef map<UInt32, CControlParameters> TMapParamters;
-typedef map<UInt32, CControlParameters>::iterator TMapParamtersIterator;
+typedef map<UInt32, CGenotype> TMapParamters;
+typedef map<UInt32, CGenotype>::iterator TMapParamtersIterator;
 
 class CEvaluationConfig : public CBaseConfigurableResource {
  private:
@@ -50,11 +50,11 @@ class CEvaluationConfig : public CBaseConfigurableResource {
    inline const UInt32 GetNumControllers() const { return m_mapControlParameters.size(); };
 
    inline const TMapParamters& GetMapControlParameters() {return m_mapControlParameters;};
-   //inline const CControlParameters& GetControlParameters( const UInt32 un_index ) { return m_mapControlParameters[un_index]; };
+   //inline const CGenotype& GetControlParameters( const UInt32 un_index ) { return m_mapControlParameters[un_index]; };
    // TODO: I had to do this because the mating population needs to write the performance in the control parameters
    // and to do so it needs to cast them into a Genotype
-   inline CControlParameters& GetControlParameters( const UInt32 un_index ) { return m_mapControlParameters[un_index]; };
-   void InsertControlParameters( const UInt32 un_index, CControlParameters c_control_parameters );
+   inline CGenotype& GetControlParameters( const UInt32 un_index ) { return m_mapControlParameters[un_index]; };
+   void InsertControlParameters( const UInt32 un_index, CGenotype c_control_parameters );
    inline void ClearControlParameters() { m_mapControlParameters.clear(); };
    void LoadControlParameters( const string& s_population_file );
    void LoadControlParameters( const UInt32 un_index, const string& s_parameters_file );
@@ -76,13 +76,10 @@ class CEvaluationConfig : public CBaseConfigurableResource {
    inline const UInt32 GetSampleSeed(const UInt32 un_num_sample) const { return m_vecSampleSeeds[un_num_sample]; };
 
    inline void SetEvaluationResults( TVecObjectives vec_results ) {m_vecResults = vec_results;};
-   inline const TVecObjectives& GetEvaluationResults(){ return m_vecResults;};
+   inline const TVecObjectives& GetEvaluationResults()const { return m_vecResults;};
 
    friend ostream& operator <<( ostream& os, const CEvaluationConfig& c_ec );
-   
-   friend bool operator <( const CEvaluationConfig& c_ec1, const CEvaluationConfig& c_ec2 ) {return c_ec1.m_vecResults[0][0] < c_ec2.m_vecResults[0][0];}
-   friend bool operator >( const CEvaluationConfig& c_ec1, const CEvaluationConfig& c_ec2 ) {return c_ec1.m_vecResults[0][0] > c_ec2.m_vecResults[0][0];}
-   
+
 
 };
 

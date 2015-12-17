@@ -82,7 +82,7 @@ void CEvaluationConfig::Init( TConfigurationNode& t_tree ) {
 /****************************************/
 /****************************************/
 
-void CEvaluationConfig::InsertControlParameters( const UInt32 un_index, CControlParameters c_control_parameters ){ 
+void CEvaluationConfig::InsertControlParameters( const UInt32 un_index, CGenotype c_control_parameters ){ 
    if( m_mapControlParameters.find(un_index) == m_mapControlParameters.end() ) {
       m_mapControlParameters.insert(make_pair(un_index, c_control_parameters));
    }
@@ -98,7 +98,7 @@ void CEvaluationConfig::LoadControlParameters( const string& s_population_file )
    }
    
    UInt32 un_index = 0;
-   CControlParameters c_control_parameters;
+   CGenotype c_control_parameters;
    string s_line;
    while(std::getline(in, s_line, '\n')) {
       std::istringstream iss(s_line);
@@ -117,7 +117,7 @@ void CEvaluationConfig::LoadControlParameters( const UInt32 un_index, const stri
    }
    
    try {
-      CControlParameters c_control_parameters;
+      CGenotype c_control_parameters;
       if( in >> c_control_parameters ) {
 	 InsertControlParameters( un_index, c_control_parameters );
       }
