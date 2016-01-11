@@ -8,7 +8,7 @@
 #include <argos_utility/datatypes/datatypes.h>
 #include <argos_utility/logging/argos_log.h>
 
-#include <utility/control_parameters.h>
+#include <utility/genotype.h>
 #include <utility/objectives.h>
 
 #include "revolver_general.h"
@@ -43,12 +43,17 @@ class CPopulation : public CBaseConfigurableResource  {
    // selection strategy
    CSelectionStrategy* m_pcSelectionStrategy;
    
+   // recombination factor used for experiments with mating (Duarte-like)
+   Real m_fRecombinationFactor;
+   
  public:
    CPopulation();
    ~CPopulation();
 
-   // function to set the RNG pointer
+   // function to set and get the RNG pointer
    inline void SetRNG( CRandom::CRNG* pc_rng ) { m_pcRNG = pc_rng; };
+   inline CRandom::CRNG* GetRNG(){return m_pcRNG;};
+   
 
    // generic initialisation from the configuration tree, loaded from the xml file
    virtual void Init( TConfigurationNode& t_configuration_tree );
@@ -67,7 +72,7 @@ class CPopulation : public CBaseConfigurableResource  {
    virtual void Update() = 0;
 
    // get the parameters of a specific individual
-   virtual CControlParameters GetIndividualParameters( const UInt32& un_individual_number ) const = 0;
+   virtual CGenotype GetIndividualParameters( const UInt32& un_individual_number ) const = 0;
 
    // set and store the computed performance of an individual
    virtual void SetPerformance( const UInt32& un_individual_number, CObjectives& c_objetives ) = 0;
@@ -77,6 +82,9 @@ class CPopulation : public CBaseConfigurableResource  {
    virtual Real GetIndividualFitness( const UInt32& un_individual_number ) = 0;
    virtual Real GetBestIndividualFitness() = 0;
    virtual Real GetWorstIndividualFitness() = 0;
+
+   // get the recombination factor
+   virtual Real GetRecombinationFactor()const {return m_fRecombinationFactor;};
 
    // function to save the population and specific individuals
    inline virtual void Dump( const string& filename ) {LOG << "Population::Dump()" << endl;};

@@ -28,6 +28,8 @@ class CMatingEvaluation : public CEvaluationStrategy {
    ~CMatingEvaluation();
    
    virtual CEvaluationConfig* GetEvaluationConfig( const UInt32 un_individual_index, const CPopulation& c_population );
+   
+   virtual void GetInfoFromPopulation(const CPopulation* c_population);
 };
 
 

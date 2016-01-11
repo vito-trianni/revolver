@@ -7,7 +7,7 @@
 #include <argos_utility/configuration/base_configurable_resource.h>
 #include <argos_utility/logging/argos_log.h>
 
-#include <src/genotype.h>
+#include <utility/genotype.h>
 
 
 

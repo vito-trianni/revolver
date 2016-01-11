@@ -50,12 +50,12 @@ UInt32 CRouletteWheelSelection::GetNextIndividual( bool& elite ) {
       elite = false;
       Real roulette = m_pcRNG->Uniform(CRange<Real>(0,m_fTotalFitness));
       for( nextIndividual = 0; nextIndividual < m_mapIndividualFitness.size(); ++nextIndividual ) {
-	 roulette -= m_mapIndividualFitness[nextIndividual];
-	 if( roulette <= 0 ) break;
+	      roulette -= m_mapIndividualFitness[nextIndividual];
+	      if( roulette <= 0 ) break;
       }
 
       if( nextIndividual == m_mapIndividualFitness.size() ) {
-	 nextIndividual = m_pcRNG->Uniform(CRange<UInt32>(0,m_mapIndividualFitness.size()));
+	      nextIndividual = m_pcRNG->Uniform(CRange<UInt32>(0,m_mapIndividualFitness.size()));
       }
    }
    

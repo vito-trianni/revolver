@@ -76,6 +76,18 @@ void CGenotype::MutateNormal( const Real f_mutation_variance ) {
    }
 }
 
+/****************************************/
+/****************************************/
+
+void CGenotype::MutateNormalWithProbability( const Real f_mutation_variance, const Real f_mutation_probability ) {   
+   for( UInt32 i = 0; i < GetSize(); ++i ) {
+      Real fMutateRandom = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+      if(fMutateRandom < f_mutation_probability){
+         m_vecElements[i] += m_pcRNG->Gaussian(f_mutation_variance);
+      }
+   }
+}
+
 
 /****************************************/
 /****************************************/

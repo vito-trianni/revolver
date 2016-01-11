@@ -83,6 +83,8 @@ void CParallelEvolution::StartEvaluationProcess() {
    LOG << "[REVOLVER] spawned " << m_unNumProcesses << " MPI processs" << endl;
    LOG.Flush();
 
+   // Porcata step 2: make sure evaluation strategy gets the needed info from population
+   m_pcEvaluationStrategy->GetInfoFromPopulation(m_pcPopulation);
 
    // initialise the spawned process
    UInt32 unGenotypeSize = m_pcPopulation->GetGenotypeSize();
@@ -90,6 +92,7 @@ void CParallelEvolution::StartEvaluationProcess() {
    UInt32 unTeamSize = m_pcEvaluationStrategy->GetTeamSize();
    UInt32 unNumSamples = m_pcEvaluationStrategy->GetNumSamples();
    UInt32 unNumObjectives = m_pcPopulation->GetNumObjectives();
+   Real fRecombinationFactor = m_pcPopulation->GetRecombinationFactor();
 
    for( UInt32 tid = 0; tid < m_unNumProcesses; ++tid ) {
       LOG << "[REVOLVER] sending initialisation parameters to child process (tid = " << tid << ")" << endl;
@@ -100,7 +103,8 @@ void CParallelEvolution::StartEvaluationProcess() {
       m_cEvaluatorComm.Send(&unTeamSize, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(&unNumSamples, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(&unNumObjectives, 1, MPI_INT, tid, 1);
-
+      m_cEvaluatorComm.Send(&fRecombinationFactor, 1, MPI_ARGOSREAL, tid, 1);
+      
 
       // initialise the map that associate to each spawned process the individual that it is evaluating
       m_mapProcessToIndividual[tid] = -1;
@@ -144,7 +148,7 @@ void CParallelEvolution::EvaluatePopulation() {
    for( UInt32 i = 0; i < m_pcEvaluationStrategy->GetNumSamples(); ++i ) {
       m_punEvaluationSeeds[i] = m_pcRNG->Uniform(CRange<UInt32>(0,INT_MAX));
    }
-
+   
    // fist, send numProcess individuals in the queue. The queueing script
    // will write in a file the results, a file different for each
    // individual sample. 
@@ -184,22 +188,26 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    if( tid == -1 ) {
       THROW_ARGOSEXCEPTION( "error: no process available to start evaluation" );
    }
-
+   
+   
    CEvaluationConfig* pc_evaluation_config = m_pcEvaluationStrategy->GetEvaluationConfig( individualNumber, *m_pcPopulation );;
 
    // sending seed and individual number
    m_cEvaluatorComm.Send(&individualNumber, 1, MPI_INT, tid, 1);
 
    // sending team composition
-   UInt32 pun_teams[pc_evaluation_config->GetNumTeams()*pc_evaluation_config->GetTeamSize()];
+   UInt32 pun_teams[pc_evaluation_config->GetNumTeams()*pc_evaluation_config->GetNumTeams()];
+   
    for( UInt32 i = 0; i < pc_evaluation_config->GetNumTeams(); i++ ) {
       TTeam team = pc_evaluation_config->GetTeam(i);
+      
       for( UInt32 j = 0; j < pc_evaluation_config->GetTeamSize(); j++ ) {
 	      pun_teams[i*pc_evaluation_config->GetTeamSize()+j] = team[j];
-      }      
+	      }      
    }
+   
    m_cEvaluatorComm.Send(pun_teams, pc_evaluation_config->GetNumTeams()*pc_evaluation_config->GetTeamSize(), MPI_INT, tid, 1);
-
+   
    // sending control parameters
    UInt32 unNumControllers = pc_evaluation_config->GetNumControllers();
    TMapParamters map_controllers = pc_evaluation_config->GetMapControlParameters();
@@ -214,7 +222,7 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
       vector<Real> values = it->second.GetValues();
       std::copy(values.begin(), values.end(), pf_control_parameters);
       
-      //it->second.Insert(m_pcPopulation->GetGenotypeSize(),pf_control_parameters);
+      
       m_cEvaluatorComm.Send(&un_index, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);
       
@@ -259,14 +267,17 @@ void CParallelEvolution::ReceiveIndividualFitness() {
    for( UInt32 i = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples(); i < num_objs; i++ ) {
       vec_teams.push_back( (UInt32)rint(objs[i]) );
    }
+   
+   
 
    // compute average performance and set objectives
    CObjectives mean_performance(m_pcPopulation->GetNumObjectives());
    mean_performance.Mean( vec_objs );
    m_pcPopulation->SetPerformance( un_individual, mean_performance);
-
    // store the results
    m_vecEvaluationConfigurations[un_individual]->SetEvaluationResults(vec_objs);
+   
+   
 }
 
 

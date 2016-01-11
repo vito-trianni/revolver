@@ -90,7 +90,7 @@ void CMOOPopulation::Update() {
 /****************************************/
 /****************************************/
 
-CControlParameters CMOOPopulation::GetIndividualParameters( const UInt32& un_individual_number ) const {
+CGenotype CMOOPopulation::GetIndividualParameters( const UInt32& un_individual_number ) const {
    return CControlParameters( dynamic_cast< ChromosomeT<double>& >((*m_pcPopulation)[un_individual_number][0]) );
 }
 

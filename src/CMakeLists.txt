@@ -21,7 +21,6 @@ set(revolver_IMPLEMENTATIONS
   clonal_evaluation.cpp
   aclonal_evaluation.cpp
   mating_evaluation.cpp
-  genotype.cpp
   )
 
 add_executable(revolver ${revolver_IMPLEMENTATIONS})

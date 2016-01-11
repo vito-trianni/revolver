@@ -27,6 +27,8 @@ class CEvaluationConfig : public CBaseConfigurableResource {
    UInt32 m_unNumTeams;
    UInt32 m_unTeamSize;
    
+   Real m_fRecombinationFactor;
+   
    UInt32 m_unIndividualIndex;
 
    TMapParamters m_mapControlParameters;
@@ -64,6 +66,10 @@ class CEvaluationConfig : public CBaseConfigurableResource {
 
    inline const UInt32 GetTeamSize() const { return m_unTeamSize; };
    inline void SetTeamSize( const UInt32 un_team_size ) { m_unTeamSize = un_team_size; };
+   
+   inline void SetRecombinationFactor(const Real f_recombination_factor){m_fRecombinationFactor = f_recombination_factor;};
+   inline const Real GetRecombinationFactor(){return m_fRecombinationFactor;};
+   
    inline const TTeam& GetTeam( UInt32 un_index ) const { return m_vecTeams[un_index]; };
    void InsertTeam( const UInt32 un_team_index, TTeam vec_team );
    void InsertTeamMember( const UInt32 un_team_index, const UInt32 un_team_member );
@@ -77,6 +83,8 @@ class CEvaluationConfig : public CBaseConfigurableResource {
 
    inline void SetEvaluationResults( TVecObjectives vec_results ) {m_vecResults = vec_results;};
    inline const TVecObjectives& GetEvaluationResults()const { return m_vecResults;};
+
+   virtual CGenotype GetOffspringGenotype(CRandom::CRNG* pc_rng);
 
    friend ostream& operator <<( ostream& os, const CEvaluationConfig& c_ec );
 

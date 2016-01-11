@@ -39,7 +39,7 @@
 
 #include "../../src/revolver_general.h"
 #include "definitions.h"
-
+#include "simulator.h"
 
 using namespace argos;
 using namespace std;
@@ -60,6 +60,10 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
+   ////////////////////////////////////////////////////////////////////////////////
+   // Create an instance of the simulator
+   ////////////////////////////////////////////////////////////////////////////////
+   CSimulator cSimulator;
    
    ////////////////////////////////////////////////////////////////////////////////
    // parse the command line
@@ -67,7 +71,7 @@ int main(int argc, char** argv) {
 
    // fitness base file
    string s_working_dir = "";
-   string invalid_xml_configuration = "";
+   string invalid_xml_configuration_filename = "";
       
    // define the class for parsing the command line
    CCommandLineArgParser cCommandLineArgs;
@@ -82,7 +86,7 @@ int main(int argc, char** argv) {
    cCommandLineArgs.AddArgument<std::string>('c',
 					     "--config",
 					     "Specify the xml configuration file",
-					     invalid_xml_configuration);
+					     invalid_xml_configuration_filename);
    
    ////////////////////////////////////////////////////////////////////////////////
    // Build and initialise the simulator according to the command line arguments
@@ -97,10 +101,14 @@ int main(int argc, char** argv) {
 	      chdir( s_working_dir.c_str() );
 	      // LOG << "[INVALID] working directory is: " << get_current_dir_name() << endl;
       }
+      
+      cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);
+      cSimulator.LoadExperiment();
 
    }
    catch(std::exception& ex) {
       /* A fatal error occurred: dispose of data, print error and exit */
+      cSimulator.Destroy();
       LOGERR << "[INVALID] " << ex.what() << endl;
       LOG.Flush();
       LOGERR.Flush();
@@ -130,12 +138,14 @@ int main(int argc, char** argv) {
    UInt32  un_team_size = 0;
    UInt32  un_num_samples = 0;
    UInt32  un_num_objectives = 0;
+   Real f_recombination_factor = 0.0;
    parent_comm.Recv( &un_genotype_length, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &un_num_teams, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &un_team_size, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &un_num_samples, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &un_num_objectives, 1, MPI_INT, 0, 1);
-
+   parent_comm.Recv( &f_recombination_factor, 1, MPI_ARGOSREAL, 0, 1);
+   
    UInt32 pun_teams[un_num_teams*un_team_size];
    UInt32 pun_sample_seeds[un_num_samples];
    Real pf_genotype[un_genotype_length];
@@ -148,9 +158,10 @@ int main(int argc, char** argv) {
       SInt32  n_individual_number = -1;
       UInt32  un_num_genotypes = 0;
 
+      
+      CEvaluationConfig evaluation_config( un_num_teams, un_team_size );
       // blocking calls - waiting for the parent to send information
       // receiving random seed and individual number
-      CEvaluationConfig evaluation_config( un_num_teams, un_team_size );
       parent_comm.Recv( &n_individual_number, 1, MPI_INT, 0, 1);
       
       // check wether parent sent a stop signal (ind < 0)
@@ -158,20 +169,23 @@ int main(int argc, char** argv) {
       
       // receiving team composition
       parent_comm.Recv( pun_teams, un_num_teams*un_team_size, MPI_INT, 0, 1);
+      
       evaluation_config.SetTeams(un_num_teams*un_team_size,pun_teams);
+      evaluation_config.SetRecombinationFactor(f_recombination_factor);
 
       // receiving control parameters
       parent_comm.Recv( &un_num_genotypes, 1, MPI_INT, 0, 1);
-
+      
       for( UInt32 i = 0; i < un_num_genotypes; i++ ) {
       	UInt32 un_index;
       	parent_comm.Recv( &un_index, 1, MPI_INT, 0, 1);
       	parent_comm.Recv( pf_genotype, un_genotype_length, MPI_ARGOSREAL, 0, 1);
-      	parent_comm.Recv( pun_sample_seeds, un_num_samples, MPI_INT, 0, 1);
-      	evaluation_config.InsertControlParameters( un_index, CControlParameters(un_genotype_length,pf_genotype) );
+      	
+      	evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
       }
 
       // set the evaluation seed
+      parent_comm.Recv( pun_sample_seeds, un_num_samples, MPI_INT, 0, 1);
       evaluation_config.SetSampleSeeds(CVector<UInt32>(un_num_samples,pun_sample_seeds));
 
       
@@ -181,32 +195,41 @@ int main(int argc, char** argv) {
       // start evaluation
       for( UInt32 i = 0; i < un_num_samples; ++i ) {
          // set the random seed in the simulator
-      	 
+      	cSimulator.SetRandomSeed(evaluation_config.GetSampleSeed(i));
 	 
 	      // set the trial number
+	      cSimulator.SetTrialNumber( i );
 	 
 	      // resetting the experiment
+	      cSimulator.Reset();
 	 
 	      // set the controller parameters
+	      cSimulator.SetControlParameters(&evaluation_config);
 	 
 	      // run the simulation
-	      Real fitness = 0.0;
-         for (UInt32 j = 0; j < un_genotype_length; j++){
-            fitness += pf_genotype[j];
-            //LOG << ' ' << pf_genotype[j];
-         }
+	      cSimulator.Execute();
+	      
+	      
+	      //Real fitness = 0.0;
+         //for (UInt32 j = 0; j < un_genotype_length; j++){
+         //   fitness += pf_genotype[j];
+         //   LOGERR << ' ' << pf_genotype[j];
+         //}
          
-         //LOG << " Fitness: " << fitness <<  std::endl;
+         //LOGERR << " Fitness: " << fitness <<  std::endl;
 	 
 	      // retrieve the fitness values
+	      Real fitness = cSimulator.ComputePerformanceInExperiment();
 	      CObjectives objs(1,&fitness);
+	      
 	      vec_results.push_back( objs );
 
 	      for( UInt32 j = 0; j < un_num_objectives; j++ ) {
 	         pf_results[i*un_num_objectives + j] = objs[j];
 	      }
       }
-
+      
+      
       // send the computed fitness to the parent process
       parent_comm.Send(pf_results, un_num_objectives*un_num_samples, MPI_ARGOSREAL, 0, 1);
       

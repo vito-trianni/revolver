@@ -6,6 +6,7 @@
 CMatingEvaluation::CMatingEvaluation() :
    CEvaluationStrategy()
 {
+   m_unNumTeams = 1;
 }
 
 
@@ -15,6 +16,18 @@ CMatingEvaluation::CMatingEvaluation() :
 CMatingEvaluation::~CMatingEvaluation() {
 };
 
+/****************************************/
+/****************************************/
+
+void CMatingEvaluation::GetInfoFromPopulation(const CPopulation* c_population)  {
+   const CMatingPopulation* cMatingPopulation = dynamic_cast<const CMatingPopulation*>(c_population);
+   if (cMatingPopulation) {
+      m_unTeamSize = cMatingPopulation->GetFoundingTeamSize();
+   }
+   else{
+      THROW_ARGOSEXCEPTION("[REVOLVER] mating evaluation strategy requires a mating population");
+   }
+}
 
 /****************************************/
 /****************************************/

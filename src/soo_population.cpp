@@ -81,7 +81,7 @@ void CSOOPopulation::Update() {
 /****************************************/
 /****************************************/
 
-CControlParameters CSOOPopulation::GetIndividualParameters( const UInt32& un_individual_number ) const {
+CGenotype CSOOPopulation::GetIndividualParameters( const UInt32& un_individual_number ) const {
    return m_vecIndividuals[un_individual_number];
 }
 

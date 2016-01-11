@@ -10,6 +10,7 @@ const string EVALUATION_TEAM                = "team";
 CEvaluationConfig::CEvaluationConfig() :
    m_unNumTeams( 0 ),
    m_unTeamSize( 0 ),
+   m_fRecombinationFactor(0.0),
    m_unIndividualIndex( 0 )
 {}
 
@@ -158,6 +159,71 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
    }
 }
 
+/****************************************/
+/****************************************/
+
+CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
+   CGenotype& cMotherGenotype = GetControlParameters(0);
+   
+   UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
+   CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
+   
+   //LOGERR << "Recombination factor: " << m_fRecombinationFactor << std::endl;
+   
+   //LOGERR << "Mother: " << cMotherGenotype << endl;
+   //LOGERR << "Father: " << cFatherGenotype << endl;
+   
+   UInt32 uGenotypeSize = cMotherGenotype.GetSize();
+   
+   Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+   if(fRecombineRandom < m_fRecombinationFactor){
+      // Single (random) point crossover
+      UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
+      Real pf_control_parameters[uGenotypeSize];
+      Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0)); // From which parent we chose first and second block
+      vector<Real> vecMotherValues = cMotherGenotype.GetValues();
+      vector<Real> vecFatherValues = cFatherGenotype.GetValues();
+      // First chunk until cutoff
+      for(UInt32 i = 0; i < nCutoffPoint ; ++i){
+         if(fParentChoiceRandom < 0.5){
+            pf_control_parameters[i] = vecMotherValues[i];
+         }
+         else{
+            pf_control_parameters[i] = vecFatherValues[i];
+         }
+      }
+      // Second chunk from cutoff to the end. We use the same random number so if before we took from mom now
+      // we take from dad and viceversa
+      for(UInt32 i = nCutoffPoint; i < uGenotypeSize ; ++i){
+         if(fParentChoiceRandom < 0.5){
+            pf_control_parameters[i] = vecFatherValues[i];
+         }
+         else{
+            pf_control_parameters[i] = vecMotherValues[i];
+         }
+      }
+      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
+      offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
+      offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
+      return offSpringGenotype;
+   }
+   else{
+      Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+      if(fParentChoiceRandom < 0.5){
+         CGenotype offSpringGenotype(cMotherGenotype);
+         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
+         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
+         return offSpringGenotype;
+      }
+      else{
+         CGenotype offSpringGenotype(cFatherGenotype);
+         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
+         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
+         return offSpringGenotype;
+      }
+   }
+   
+}
 
 /****************************************/
 /****************************************/

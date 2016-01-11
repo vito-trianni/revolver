@@ -11,17 +11,23 @@ using namespace argos;
 
 typedef vector<CEvaluationConfig*> TVecFoundingTeams;
 
+
 class CMatingPopulation : public CPopulation  {
  protected:
    // the actual population
    TVecFoundingTeams m_vecTeams;
    UInt32 m_unFoundingTeamSize;
-   Real m_fRecombinationFactor;
+   
+   // there is a probability < 1.0 that mutation occurs in each gene
+   Real m_fMutationProbability;
+   
+   // there was a better mechanism maybe. Remove once found.
+   Real m_fMonomorphicInitGenotype;
 
    bool m_bSorted;
    UInt32 m_unBestIndividual;
    UInt32 m_unWorstIndividual;
-   
+
 
  public:
    CMatingPopulation();
@@ -39,10 +45,12 @@ class CMatingPopulation : public CPopulation  {
    // get the founding team associated to a specific mother/ID
    virtual inline CEvaluationConfig* GetFoundingTeam(const UInt32 un_individual_index) const {return m_vecTeams[un_individual_index];};
 
-   virtual CGenotype GetOffspringGenotypeFromFoundingTeam(UInt32 c_founding_team_id);
-
    // get the parameters of a specific individual
-   virtual CControlParameters GetIndividualParameters( const UInt32& un_individual_number ) const;
+   virtual CGenotype GetIndividualParameters( const UInt32& un_individual_number ) const;
+
+   // get the founding team size
+   virtual UInt32 GetFoundingTeamSize()const {return m_unFoundingTeamSize;};
+
    
    // set and store the computed performance of an individual
    virtual void SetPerformance( const UInt32& un_individual_number, CObjectives& c_objetives );

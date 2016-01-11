@@ -3,7 +3,7 @@
 <evolution
   type = "parallel"
   invalid_name = "src/trivialMating"
-  max_generation = "10"
+  max_generation = "100"
   save_generation_step = "1"
   num_generation = "0"
   evolution_basefile = "revolver"
@@ -11,26 +11,28 @@
   fitness_basefile = "fitness"
   bestind_basefile = "bestind"
   num_processes = "1"
-  experiment = "specialisation/specialisation_evoconfig.xml">
+  experiment = "config/duarte_evoconfig.xml">
   <population 
     type="mating_population"	
-    population_size = "10"
+    population_size = "100"
     genotype_size = "2"
-    gene_value_range = "0:1000"
-    mutation_variance = "0.05"
+    gene_value_range = "0:100"
+    mutation_variance = "0.1"
+    mutation_probability = "0.1"
     num_objectives = "1"
     recombination_factor = "0.5"
+    genotype_monomorphic_init_value = "10.0"
     founding_team_size = "2">
     <selection
       type="roulette"
-      elite_size = "5"
+      elite_size = "0"
       mu = "25" />
   </population>
   <evaluation
     type="mating_evaluation_strategy"
     samples_per_team = "1"
     team_size = "1"
-    num_samples = "10" />
+    num_samples = "2" />
 
 </evolution>
 </morevolver-configuration>

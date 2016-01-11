@@ -1,11 +1,12 @@
 #include "population.h"
 
-const string CONFIGURATION_POPULATION_MAXIMISE       = "maximise";
-const string CONFIGURATION_POPULATION_SIZE           = "population_size";
-const string CONFIGURATION_GENOTYPE_SIZE             = "genotype_size";
-const string CONFIGURATION_GENOTYPE_VALUE_RANGE      = "gene_value_range";
-const string CONFIGURATION_MUTATION_VARIANCE         = "mutation_variance";
-const string CONFIGURATION_EVOLUTION_OBJECTIVES      = "num_objectives";
+const string CONFIGURATION_POPULATION_MAXIMISE                 = "maximise";
+const string CONFIGURATION_POPULATION_SIZE                     = "population_size";
+const string CONFIGURATION_GENOTYPE_SIZE                       = "genotype_size";
+const string CONFIGURATION_GENOTYPE_VALUE_RANGE                = "gene_value_range";
+const string CONFIGURATION_MUTATION_VARIANCE                   = "mutation_variance";
+const string CONFIGURATION_EVOLUTION_OBJECTIVES                = "num_objectives";
+const string CONFIGURATION_EVOLUTION_RECOMBINATION_FACTOR      = "recombination_factor";
 
 
 
@@ -19,6 +20,7 @@ CPopulation::CPopulation() :
    m_unGenotypeSize( 0 ),
    m_cGenotypeValueRange(0,1),
    m_fMutationVariance( 0.1 ),
+   m_fRecombinationFactor(0.0),
    m_unNumObjectives( 0 )
 {}
 
@@ -58,6 +60,14 @@ void CPopulation::Init( TConfigurationNode& t_configuration_tree ) {
    // number of objectives computed by the system
    ////////////////////////////////////////////////////////////////////////////////
    GetNodeAttribute(t_configuration_tree, CONFIGURATION_EVOLUTION_OBJECTIVES, m_unNumObjectives );
+
+   ////////////////////////////////////////////////////////////////////////////////
+   // recombination factor for mating type of populations. Ignored otherwise. Here because parellel needs to communicate it.
+   ////////////////////////////////////////////////////////////////////////////////
+   GetNodeAttribute(t_configuration_tree, CONFIGURATION_EVOLUTION_RECOMBINATION_FACTOR, m_fRecombinationFactor );
+   if( m_fRecombinationFactor < 0.0 || m_fRecombinationFactor > 1.0 ) {
+      THROW_ARGOSEXCEPTION("[REVOLVER] the recombination factor must be in [0,1]");
+   }
 
 
    ////////////////////////////////////////////////////////////////////////////////

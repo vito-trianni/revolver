@@ -42,6 +42,8 @@ class CGenotype : public CControlParameters {
    inline void SetPerformance( const CObjectives& c_objs ) {m_cPerformance = c_objs;};
    
    void MutateNormal( const Real f_mutation_variance );
+   void MutateNormalWithProbability(const Real f_mutation_variance, const Real f_mutation_probability);
+   
    void CutOff();
    void CutOffMin();
    void CutOffMax();

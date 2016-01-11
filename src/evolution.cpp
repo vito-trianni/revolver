@@ -153,10 +153,10 @@ void CEvolution::Evolve() {
 
       // dump population
       if( (m_unNumGeneration % m_unSaveGenerationStep == 0) || (m_unNumGeneration == m_unMaxGeneration -1) ) {
-	 DumpPopulation();
-	 DumpEvaluationResults();
-	 DumpBestIndividuals();
-	 DumpPerformance();
+         DumpPopulation();
+	      DumpEvaluationResults();
+	      DumpBestIndividuals();
+	      DumpPerformance();
       }
 
       // clear the structures used for logging evaluation configuration and results
@@ -164,9 +164,10 @@ void CEvolution::Evolve() {
 
       LOG << "[REVOLVER] Generation " << m_unNumGeneration 
 	  << " - best fitness: " << m_pcPopulation->GetBestIndividualFitness() 
+	  << " - worst fitness: " << m_pcPopulation->GetWorstIndividualFitness() 
 	  << " - avg fitness: " << m_pcPopulation->GetAveragePopulationFitness() << endl;
       LOG.Flush();
-      
+
       // update the population through selection and mutation operators
       m_pcPopulation->Update();
 
@@ -256,7 +257,9 @@ void CEvolution::DumpPerformance() {
 
 void CEvolution::ClearLoggingStructures() {
    for( UInt32 i = 0; i < m_pcPopulation->GetSize(); ++i ) {
-      if( m_vecEvaluationConfigurations[i] ) delete m_vecEvaluationConfigurations[i];
-      m_vecEvaluationConfigurations[i] = NULL;
+      if( m_vecEvaluationConfigurations[i] ){
+         delete m_vecEvaluationConfigurations[i];
+         m_vecEvaluationConfigurations[i] = NULL;
+      }
    }
 }

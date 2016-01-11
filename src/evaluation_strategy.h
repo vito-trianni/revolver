@@ -34,6 +34,10 @@ public:
    virtual void Destroy() {};
    
    virtual CEvaluationConfig* GetEvaluationConfig( const UInt32 un_individual_index, const CPopulation& c_population ) = 0;
+   
+   // Porcata: a way to make CEvaluationStrategy communicate with population. Used in mating population to let
+   // this class know the number of teams. TODO: how to make it better?
+   virtual void GetInfoFromPopulation(const CPopulation* c_population){};
 
    // get/set number of samples
    inline const UInt32 GetNumSamples() { return m_unNumSamples; };

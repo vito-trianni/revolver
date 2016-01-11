@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<simulator-configuration>
+<simulator
+  colony_size                 = "100"
+  total_duration_timesteps    = "100"
+  
+  delta_stimulus_increase_A   = "1.0"
+  delta_stimulus_increase_B   = "1.0"
+  alpha_stimulus_decrease_A   = "0.03"
+  alpha_stimulus_decrease_B   = "0.03"
+  switching_cost              = "0"
+  
+  beta_fitness_weight_factor  = "0.5"
+  >
+  
+</simulator>
+</simulator-configuration>

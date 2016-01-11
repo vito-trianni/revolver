@@ -33,7 +33,7 @@ class CSOOPopulation : public CPopulation  {
    virtual void Update();
 
    // get the parameters of a specific individual
-   virtual CControlParameters GetIndividualParameters( const UInt32& un_individual_number ) const;
+   virtual CGenotype GetIndividualParameters( const UInt32& un_individual_number ) const;
    
    // set and store the computed performance of an individual
    virtual void SetPerformance( const UInt32& un_individual_number, CObjectives& c_objetives );

@@ -49,6 +49,8 @@ class CParallelEvolution : public CEvolution {
    inline const UInt32 GetNumProcesses() { return m_unNumProcesses; };
    inline void SetNumProcesses( const UInt32& un_num_processes ) { m_unNumProcesses = un_num_processes; };
 
+   // another semi-porcata: since we cannot get rid of evaluation configs, we override this
+   virtual void ClearLoggingStructures(){};
 
 };
 
