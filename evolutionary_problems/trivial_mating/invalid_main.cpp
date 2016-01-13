@@ -177,6 +177,8 @@ int main(int argc, char** argv) {
       // receiving control parameters
       parent_comm.Recv( &un_num_genotypes, 1, MPI_INT, 0, 1);
       
+      LOGERR << "Receiving controllers" << std::endl;
+      
       for( UInt32 i = 0; i < un_num_genotypes; i++ ) {
       	UInt32 un_index;
       	parent_comm.Recv( &un_index, 1, MPI_INT, 0, 1);
@@ -184,31 +186,46 @@ int main(int argc, char** argv) {
       	
       	evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
       }
+      
+      LOGERR << "Received controllers" << std::endl;
 
       // set the evaluation seed
       parent_comm.Recv( pun_sample_seeds, un_num_samples, MPI_INT, 0, 1);
       evaluation_config.SetSampleSeeds(CVector<UInt32>(un_num_samples,pun_sample_seeds));
 
+      LOGERR << "Set seeds" << std::endl;
       
       // vector for storing all the evaluation results
       TVecObjectives vec_results;
+      
+      LOGERR << "---" << std::endl;
       
       // start evaluation
       for( UInt32 i = 0; i < un_num_samples; ++i ) {
          // set the random seed in the simulator
       	cSimulator.SetRandomSeed(evaluation_config.GetSampleSeed(i));
+      	
+      	LOGERR << "Set seeds in run " << i << std::endl;
 	 
 	      // set the trial number
 	      cSimulator.SetTrialNumber( i );
+	      
+	      LOGERR << "Set trial no" << std::endl;
 	 
 	      // resetting the experiment
 	      cSimulator.Reset();
+	      
+	      LOGERR << "Reset sim" << std::endl;
 	 
 	      // set the controller parameters
 	      cSimulator.SetControlParameters(&evaluation_config);
+	      
+	      LOGERR << "Set control par. Executing sim ..." << std::endl;
 	 
 	      // run the simulation
 	      cSimulator.Execute();
+	      
+	      LOGERR << "Finished executing sim" << std::endl;
 	      
 	      
 	      //Real fitness = 0.0;
@@ -223,12 +240,16 @@ int main(int argc, char** argv) {
 	      Real fitness = cSimulator.ComputePerformanceInExperiment();
 	      CObjectives objs(1,&fitness);
 	      
+	      LOGERR << "Retrieved fitness" << std::endl;
+	      
 	      vec_results.push_back( objs );
 
 	      for( UInt32 j = 0; j < un_num_objectives; j++ ) {
 	         pf_results[i*un_num_objectives + j] = objs[j];
 	      }
       }
+      
+      LOGERR << "---" << std::endl;
       
       
       // send the computed fitness to the parent process

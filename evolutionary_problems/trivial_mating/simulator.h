@@ -74,7 +74,7 @@ class CSimulator {
    
  public:
    CSimulator();
-   virtual ~CSimulator() {};
+   ~CSimulator();
    
    inline void SetExperimentFileName( const string& filename ) { m_sExperimentFilename = filename; };
    inline void SetRandomSeed(const UInt32 random_seed) {m_unRandomSeed = random_seed; m_pcRNG->SetSeed(random_seed); m_pcRNG->Reset();};

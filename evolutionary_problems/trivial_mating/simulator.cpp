@@ -37,6 +37,10 @@ CSimulator::CSimulator():
     m_pcRNG = CRandom::CreateRNG(  "simulator" );   
 }
 
+CSimulator::~CSimulator(){
+    
+}
+
 
 /****************************************/
 /****************************************/
