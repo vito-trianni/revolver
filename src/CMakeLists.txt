@@ -48,5 +48,15 @@ add_executable(trivialMating ${trivialMating_IMPLEMENTATIONS})
   ${MPI_CXX_LIBRARIES}
 )
 
+set(standaloneTrivialMating_IMPLEMENTATIONS
+  ../evolutionary_problems/trivial_mating/standalone_main.cpp
+  ../evolutionary_problems/trivial_mating/simulator.cpp
+)
+
+add_executable(standaloneTrivialMating ${standaloneTrivialMating_IMPLEMENTATIONS})
+  target_link_libraries(standaloneTrivialMating
+  argos_utility
+  utility
+)
 
 

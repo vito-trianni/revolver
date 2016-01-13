@@ -88,6 +88,8 @@ class CSimulator {
    
    virtual Real ComputePerformanceInExperiment();
    
+   virtual CRandom::CRNG* GetRNG(){return m_pcRNG;};
+   
    virtual void Reset();
    virtual void Destroy();
 

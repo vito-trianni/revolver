@@ -46,9 +46,10 @@ using namespace std;
 
 
 /**
- * @brief The standard main() function to run the AHSS simulator.
+ * @brief A main() function that interfaces with a MPI master running an evolutionary algorithm.
+ * It runs internally a simple simulator of Duarte paper, and gives back the fitness to the evolutionary algo.
  *
- * This main() function provides tha basic functionalities to run the AHSS
+ * This main() function provides tha basic functionalities to run the simple 
  * simulator: parses the command line, loads the experiment, runs the
  * simulation and disposes all the data.
  *

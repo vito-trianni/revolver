@@ -10,7 +10,7 @@
   alpha_stimulus_decrease_B   = "0.03"
   switching_cost              = "0"
   
-  beta_fitness_weight_factor  = "0.5"
+  beta_fitness_weight_factor  = "0.75"
   >
   
 </simulator>

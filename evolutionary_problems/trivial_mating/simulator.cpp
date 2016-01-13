@@ -42,7 +42,6 @@ CSimulator::CSimulator():
 /****************************************/
 
 void CSimulator::LoadExperiment(){
-    cerr << "File name is : " << m_sExperimentFilename << endl;
     
     ticpp::Document tConfiguration;
     tConfiguration.LoadFile(m_sExperimentFilename);
@@ -83,14 +82,19 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
 
 void CSimulator::Execute(){
     UInt32 uTimestep = 0;
+    
+    //LOGERR << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
+    
     while(uTimestep < m_unTotalDurationTimesteps){
         Actions actionsThisTimestep = {};
         std::random_shuffle(agents.begin(), agents.end());
         for(std::vector<Agent>::iterator it = agents.begin(); it != agents.end(); ++it) {
             bool bPerformTaskA = false;
             bool bPerformTaskB = false;
-            Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
-            Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
+            // Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
+            // Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
+            Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
+            Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
             if(fPerceivedStimulusTaskA > it->m_fThresholdTaskA){
                 bPerformTaskA = true;
             }
@@ -102,16 +106,20 @@ void CSimulator::Execute(){
                 Real fTaskChoiceRandom = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
                 if(fTaskChoiceRandom < 0.5){
                     actionsThisTimestep.m_unTaskA++;
+                    m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA;
                 }
                 else{
                     actionsThisTimestep.m_unTaskB++;
+                    m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
                 }
             }
             else if(bPerformTaskA){
                 actionsThisTimestep.m_unTaskA++;
+                m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA;
             }
             else if(bPerformTaskB){
                 actionsThisTimestep.m_unTaskB++;
+                m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
             }
             else{
                 actionsThisTimestep.m_unIdle++;
@@ -119,17 +127,22 @@ void CSimulator::Execute(){
             
         }
         
-        if(uTimestep > 90){
-            //LOGERR << "At timestep " << uTimestep << " we had actionsA: " << actionsThisTimestep.m_unTaskA <<" actionsB: " << actionsThisTimestep.m_unTaskB << " and idle: " << actionsThisTimestep.m_unIdle << std::endl;
-            //LOGERR << "sA " << m_fStimulusTaskA << " sB " << m_fStimulusTaskB << endl;
-        }
+        Real fFitness = (pow((Real)actionsThisTimestep.m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsThisTimestep.m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        
+        // LOGERR << uTimestep << "\t";
+        // LOGERR << m_fStimulusTaskA << "\t";
+        // LOGERR << m_fStimulusTaskB << "\t";
+        // LOGERR << actionsThisTimestep.m_unTaskA << "\t";
+        // LOGERR << actionsThisTimestep.m_unTaskB << "\t";
+        // LOGERR << actionsThisTimestep.m_unIdle  << "\t";
+        // LOGERR << fFitness  << std::endl;
         
         actionsOverTime.push_back(actionsThisTimestep);
         m_fStimulusTaskA += m_fDeltaStimulusIncreaseTaskA;
         m_fStimulusTaskB += m_fDeltaStimulusIncreaseTaskB;
         
-        m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA * (Real) actionsThisTimestep.m_unTaskA;
-        m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB * (Real) actionsThisTimestep.m_unTaskB;
+        //m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA * (Real) actionsThisTimestep.m_unTaskA;
+        //m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB * (Real) actionsThisTimestep.m_unTaskB;
         
         uTimestep++;
     }
@@ -142,7 +155,7 @@ void CSimulator::Execute(){
 Real CSimulator::ComputePerformanceInExperiment(){
     Real fFitness = 0.0;
     
-    UInt32 uTimestepsToEvaluate = 10;
+    UInt32 uTimestepsToEvaluate = 0;
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
         fFitness += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
     }
