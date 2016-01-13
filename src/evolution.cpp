@@ -149,7 +149,11 @@ void CEvolution::Evolve() {
       // evaluate popoulation
       LOG << "[REVOLVER] Evaluating population for generation " << m_unNumGeneration << endl; std::cout.flush();
 
+      LOGERR << "Evaluating population" << std::endl; LOGERR.Flush();
+
       EvaluatePopulation();
+      
+      LOGERR << "Dumping" << std::endl; LOGERR.Flush();
 
       // dump population
       if( (m_unNumGeneration % m_unSaveGenerationStep == 0) || (m_unNumGeneration == m_unMaxGeneration -1) ) {
@@ -158,6 +162,8 @@ void CEvolution::Evolve() {
 	      DumpBestIndividuals();
 	      DumpPerformance();
       }
+      
+      LOGERR << "Clearing logging" << std::endl; LOGERR.Flush();
 
       // clear the structures used for logging evaluation configuration and results
       ClearLoggingStructures();
@@ -168,8 +174,12 @@ void CEvolution::Evolve() {
 	  << " - avg fitness: " << m_pcPopulation->GetAveragePopulationFitness() << endl;
       LOG.Flush();
 
+      LOGERR << "Updating population" << std::endl; LOGERR.Flush();
+
       // update the population through selection and mutation operators
       m_pcPopulation->Update();
+
+      LOGERR << "Generation finished" << std::endl; LOGERR.Flush();
 
       // get a random seed for the next generation
       m_unRandomSeed = m_pcRNG->Uniform(CRange<UInt32>(0,INT_MAX));
