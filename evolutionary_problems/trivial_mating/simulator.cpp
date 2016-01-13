@@ -155,12 +155,11 @@ void CSimulator::Execute(){
 Real CSimulator::ComputePerformanceInExperiment(){
     Real fFitness = 0.0;
     
-    UInt32 uTimestepsToEvaluate = 0;
+    UInt32 uTimestepsToEvaluate = 100;
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
         fFitness += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
     }
     fFitness /= uTimestepsToEvaluate;
-    
     return fFitness;
 }
 
