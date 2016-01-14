@@ -128,7 +128,7 @@ void CMatingPopulation::Update() {
          bool elite = false;
          LOGERR << i << "," << j;LOGERR.Flush();
          UInt32 index = m_pcSelectionStrategy->GetNextIndividual(elite); // This should get the ID of the mother/funding team
-         LOGERR << ":" << index; LOGERR.Flush();
+         LOGERR << ":" << index << ";"; LOGERR.Flush();
          CGenotype cOffSpringGenotype = m_vecTeams[index]->GetOffspringGenotype(m_pcRNG);
          //LOGERR << "Offspring: " << cOffSpringGenotype << endl ;
          cOffSpringGenotype.SetID(nGenotypeUniqueID);
