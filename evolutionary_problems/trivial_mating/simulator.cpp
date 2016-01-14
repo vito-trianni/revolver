@@ -12,6 +12,9 @@ const string CONFIGURATION_ALPHA_STIMULUS_DECREASE_B    = "alpha_stimulus_decrea
 const string CONFIGURATION_SWITCHING_COST               = "switching_cost";
 const string CONFIGURATION_BETA_FITNESS_WEIGHT_FACTOR   = "beta_fitness_weight_factor";
 
+const string CONFIGURATION_WRITE_RESULTS                = "write_results";
+const string CONFIGURATION_RESULTS_FILENAME             = "results_filename";
+
 /****************************************/
 /****************************************/
 
@@ -29,6 +32,8 @@ CSimulator::CSimulator():
     m_fFitness(0.0),
     m_fStimulusTaskA(0.0),
     m_fStimulusTaskB(0.0),
+    m_bWriteResults(false),
+    m_sResultsFilename(""),
     m_sExperimentFilename("")
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
@@ -64,6 +69,17 @@ void CSimulator::LoadExperiment(){
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_SWITCHING_COST, m_unSwitchingCost );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_BETA_FITNESS_WEIGHT_FACTOR, m_fBetaFitnessWeightFactor );
     
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_WRITE_RESULTS, m_bWriteResults );
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sResultsFilename);
+    
+    if(m_bWriteResults){
+        ostringstream filename;
+        filename.fill( '0' );
+        filename.str("");
+        filename << m_sResultsFilename;
+        outputResults.open( filename.str().c_str(), ios::out );
+        outputResults << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
+    }
 }
 
 /****************************************/
@@ -84,10 +100,27 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
 /****************************************/
 /****************************************/
 
+void CSimulator::WriteResults(UInt32 u_timestep){
+    
+    if(m_bWriteResults){
+  
+        Real fFitness = (pow((Real)actionsOverTime[u_timestep].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[u_timestep].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        
+        outputResults << u_timestep << "\t";
+        outputResults << m_fStimulusTaskA << "\t";
+        outputResults << m_fStimulusTaskB << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unTaskA << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unTaskB << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unIdle  << "\t";
+        outputResults << fFitness  << std::endl;
+    }
+}
+
+/****************************************/
+/****************************************/
+
 void CSimulator::Execute(){
     UInt32 uTimestep = 0;
-    
-    //LOGERR << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
     
     while(uTimestep < m_unTotalDurationTimesteps){
         Actions actionsThisTimestep = {};
@@ -95,10 +128,10 @@ void CSimulator::Execute(){
         for(std::vector<Agent>::iterator it = agents.begin(); it != agents.end(); ++it) {
             bool bPerformTaskA = false;
             bool bPerformTaskB = false;
-            // Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
-            // Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
-            Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
-            Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
+            Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
+            Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
+            // Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
+            // Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
             if(fPerceivedStimulusTaskA > it->m_fThresholdTaskA){
                 bPerformTaskA = true;
             }
@@ -130,17 +163,7 @@ void CSimulator::Execute(){
             }
             
         }
-        
-        Real fFitness = (pow((Real)actionsThisTimestep.m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsThisTimestep.m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        
-        // LOGERR << uTimestep << "\t";
-        // LOGERR << m_fStimulusTaskA << "\t";
-        // LOGERR << m_fStimulusTaskB << "\t";
-        // LOGERR << actionsThisTimestep.m_unTaskA << "\t";
-        // LOGERR << actionsThisTimestep.m_unTaskB << "\t";
-        // LOGERR << actionsThisTimestep.m_unIdle  << "\t";
-        // LOGERR << fFitness  << std::endl;
-        
+
         actionsOverTime.push_back(actionsThisTimestep);
         m_fStimulusTaskA += m_fDeltaStimulusIncreaseTaskA;
         m_fStimulusTaskB += m_fDeltaStimulusIncreaseTaskB;
@@ -182,6 +205,7 @@ void CSimulator::Reset(){
 /****************************************/
 
 void CSimulator::Destroy(){
+    outputResults.close();
 }
 
 /****************************************/

@@ -73,7 +73,7 @@ CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 UInt32 vun_complete_genotype[4] = {10.0,10.0,10.0,10.0 } ;
 
 
-CEvaluationConfig generateFoundingTeam(CSimulator sim){
+CEvaluationConfig generateFoundingTeam(CSimulator& sim){
 
    CEvaluationConfig cSingleTeamEC( 1, un_team_size );
    cSingleTeamEC.SetRecombinationFactor(f_recombination_factor);
@@ -109,12 +109,7 @@ CEvaluationConfig generateFoundingTeam(CSimulator sim){
       uGenotypeCounter++;
    }
    
-   //evaluation_config.SetRecombinationFactor(f_recombination_factor);
-   //evaluation_config.SetSampleSeeds(CVector<UInt32>(un_num_samples,pun_sample_seeds));
-   
    cSingleTeamEC.InsertTeam(0, team);
-   
-   
    
    return cSingleTeamEC;
 }
@@ -126,32 +121,39 @@ int main(int argc, char** argv) {
    ////////////////////////////////////////////////////////////////////////////////
    CSimulator cSimulator;
    
-   ////////////////////////////////////////////////////////////////////////////////
-   // parse the command line
-   ////////////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////////////
+   // // parse the command line
+   // ////////////////////////////////////////////////////////////////////////////////
 
    // fitness base file
    string s_working_dir = "";
    string invalid_xml_configuration_filename = "";
+   UInt32 u_r_seed = 0;
       
-   // define the class for parsing the command line
+   // // define the class for parsing the command line
    CCommandLineArgParser cCommandLineArgs;
    
-   // argument -f - fitness file
+   // // argument -f - fitness file
    cCommandLineArgs.AddArgument<std::string>('d',
 					     "--directory",
 					     "Specify the working directory",
 					     s_working_dir);
 					     
-   // argument -c - experiment configuration file
+   // // argument -c - experiment configuration file
    cCommandLineArgs.AddArgument<std::string>('c',
 					     "--config",
 					     "Specify the xml configuration file",
 					     invalid_xml_configuration_filename);
    
-   ////////////////////////////////////////////////////////////////////////////////
-   // Build and initialise the simulator according to the command line arguments
-   ////////////////////////////////////////////////////////////////////////////////
+   // // argument -s - random seed
+   cCommandLineArgs.AddArgument<UInt32>('s',
+					     "--seed",
+					     "Specify the random seed",
+					     u_r_seed);
+   
+   // ////////////////////////////////////////////////////////////////////////////////
+   // // Build and initialise the simulator according to the command line arguments
+   // ////////////////////////////////////////////////////////////////////////////////
    try {
       
       /* Parse command line */
@@ -162,24 +164,25 @@ int main(int argc, char** argv) {
 	      chdir( s_working_dir.c_str() );
 	      // LOG << "[INVALID] working directory is: " << get_current_dir_name() << endl;
       }
-      
+      cSimulator.SetRandomSeed(u_r_seed);
       cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);
       cSimulator.LoadExperiment();
    }
    catch(std::exception& ex) {
       /* A fatal error occurred: dispose of data, print error and exit */
       cSimulator.Destroy();
-      LOGERR << "[INVALID] " << ex.what() << endl;
+      LOGERR << "[STANDALONE] " << ex.what() << endl;
       LOG.Flush();
       LOGERR.Flush();
       return -1;
    }
 
 
-   ////////////////////////////////////////////////////////////////////////////////
-   // Start individual evaluation
-   ////////////////////////////////////////////////////////////////////////////////
+   // ////////////////////////////////////////////////////////////////////////////////
+   // // Start individual evaluation
+   // ////////////////////////////////////////////////////////////////////////////////
 
+   generateFoundingTeam(cSimulator);
       
    CEvaluationConfig evaluation_config = generateFoundingTeam(cSimulator);
    
@@ -203,11 +206,12 @@ int main(int argc, char** argv) {
       // retrieve the fitness values
       Real fitness = cSimulator.ComputePerformanceInExperiment();
       
-      // Do something with the fitness
+      // TODO: Do something with the fitness
    }
  
+   cSimulator.Destroy();
 
-   // everything's ok, exit
+   // // everything's ok, exit
    return 0;
 }
 

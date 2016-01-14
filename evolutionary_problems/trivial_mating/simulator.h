@@ -2,6 +2,9 @@
 #define _SIMULATOR_H_
 
 #include <algorithm>
+// #include <fstream>
+// #include <sstream>
+// #include <iomanip>
 #include <argos_utility/configuration/base_configurable_resource.h>
 #include <utility/evaluation_config.h>
 #include "definitions.h"
@@ -71,6 +74,10 @@ class CSimulator {
    
    // filenames and directories
    string m_sExperimentFilename;
+   bool m_bWriteResults;
+   string m_sResultsFilename;
+   ofstream outputResults;
+   
    
  public:
    CSimulator();
@@ -83,6 +90,8 @@ class CSimulator {
    virtual void LoadExperiment();
    
    virtual void SetControlParameters(CEvaluationConfig* e_config);
+   
+   virtual void WriteResults(UInt32 u_timestep);
    
    virtual void Execute();
    
