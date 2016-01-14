@@ -126,10 +126,10 @@ void CMatingPopulation::Update() {
       TTeam team;
       for( UInt32 j = 0; j < m_unFoundingTeamSize; ++j ) {
          bool elite = false;
-         LOGERR << i << "," << j;LOGERR.Flush();
          UInt32 index = m_pcSelectionStrategy->GetNextIndividual(elite); // This should get the ID of the mother/funding team
-         LOGERR << ":" << index << ";"; LOGERR.Flush();
+         LOGERR << "FT:" << index << ";"; LOGERR.Flush();
          CGenotype cOffSpringGenotype = m_vecTeams[index]->GetOffspringGenotype(m_pcRNG);
+         LOGERR << "GO."; LOGERR.Flush();
          //LOGERR << "Offspring: " << cOffSpringGenotype << endl ;
          cOffSpringGenotype.SetID(nGenotypeUniqueID);
          cOffSpringGenotype.SetRNG(m_pcRNG);
@@ -139,7 +139,7 @@ void CMatingPopulation::Update() {
          }
          cOffSpringEC->InsertControlParameters(j,cOffSpringGenotype);
          //LOGERR << "Mutated offspring: " << cOffSpringGenotype << endl ;
-         
+         LOGERR << "IN."; LOGERR.Flush();
          team.Insert(j);
          
          nGenotypeUniqueID++;

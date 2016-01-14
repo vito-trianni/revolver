@@ -123,6 +123,7 @@ void CSimulator::Execute(){
     UInt32 uTimestep = 0;
     
     while(uTimestep < m_unTotalDurationTimesteps){
+        
         Actions actionsThisTimestep = {};
         std::random_shuffle(agents.begin(), agents.end());
         for(std::vector<Agent>::iterator it = agents.begin(); it != agents.end(); ++it) {
