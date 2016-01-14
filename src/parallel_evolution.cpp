@@ -159,16 +159,12 @@ void CParallelEvolution::EvaluatePopulation() {
       // every time there are less queued evaluations than the maximum
       // number, stated in numProcesses, start another one
       while( (queued < m_unNumProcesses) && (ind < m_pcPopulation->GetSize()) ) {
-         LOGERR << "Before SendIndividualParameters" << std::endl;
-         LOGERR.Flush();
-	      SendIndividualParameters( ind ); // send the individual genotype to the evaluation program
+         SendIndividualParameters( ind ); // send the individual genotype to the evaluation program
 	      queued  += 1;
 	      ind += 1;
       }
     
       // wait for any results: receive message and add fitness values
-      LOGERR << "Before ReceiveIndividualFitness" << std::endl;
-      LOGERR.Flush();
       ReceiveIndividualFitness();
       remaining -= 1;
       queued    -= 1;
@@ -196,9 +192,6 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    
    CEvaluationConfig* pc_evaluation_config = m_pcEvaluationStrategy->GetEvaluationConfig( individualNumber, *m_pcPopulation );;
 
-   LOGERR << "Before Send(&individualNumber," << std::endl;
-   LOGERR.Flush();
-
    // sending seed and individual number
    m_cEvaluatorComm.Send(&individualNumber, 1, MPI_INT, tid, 1);
 
@@ -213,8 +206,6 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
 	      }      
    }
    
-   LOGERR << "Before Send(pun_teams," << std::endl;
-   LOGERR.Flush();
    m_cEvaluatorComm.Send(pun_teams, pc_evaluation_config->GetNumTeams()*pc_evaluation_config->GetTeamSize(), MPI_INT, tid, 1);
    
    // sending control parameters
@@ -222,8 +213,6 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    TMapParamters map_controllers = pc_evaluation_config->GetMapControlParameters();
    Real pf_control_parameters[m_pcPopulation->GetGenotypeSize()];
    
-   LOGERR << "Before Send(&unNumControllers," << std::endl;
-   LOGERR.Flush();
    m_cEvaluatorComm.Send(&unNumControllers, 1, MPI_INT, tid, 1);
    
    
@@ -234,20 +223,13 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
       vector<Real> values = it->second.GetValues();
       std::copy(values.begin(), values.end(), pf_control_parameters);
       
-      LOGERR << "Before Send(&un_index," << std::endl;
-      LOGERR.Flush();
-      
       m_cEvaluatorComm.Send(&un_index, 1, MPI_INT, tid, 1);
       
-      LOGERR << "Before Send(pf_control_parameters," << std::endl;
-      LOGERR.Flush();
       m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);
       
    }
 
    // sending evaluation random seeds
-   LOGERR << "Before Send(m_punEvaluationSeeds," << std::endl;
-   LOGERR.Flush();
    m_cEvaluatorComm.Send(m_punEvaluationSeeds, m_pcEvaluationStrategy->GetNumSamples(), MPI_INT, tid, 1);
 
    // record the individual into the map, for later retrieval
@@ -268,8 +250,6 @@ void CParallelEvolution::ReceiveIndividualFitness() {
    UInt32 num_objs = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples() + 
       m_pcEvaluationStrategy->GetTeamSize();
    Real objs[num_objs];
-   LOGERR << "Before Recv(objs," << std::endl;
-   LOGERR.Flush();
    m_cEvaluatorComm.Recv(objs, num_objs, MPI_ARGOSREAL, MPI_ANY_SOURCE, 1, status);
    
    // get the indi vidual number and reset the process2individual map
