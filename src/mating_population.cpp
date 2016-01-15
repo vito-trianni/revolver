@@ -139,7 +139,6 @@ void CMatingPopulation::Update() {
          }
          cOffSpringEC->InsertControlParameters(j,cOffSpringGenotype);
          //LOGERR << "Mutated offspring: " << cOffSpringGenotype << endl ;
-         LOGERR << "IN."; LOGERR.Flush();
          team.Insert(j);
          
          nGenotypeUniqueID++;

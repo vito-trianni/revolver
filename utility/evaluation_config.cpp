@@ -177,6 +177,7 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
    
    Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
    if(fRecombineRandom < m_fRecombinationFactor){
+      LOGERR << "1IF."; LOGERR.Flush();
       // Single (random) point crossover
       UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
       Real pf_control_parameters[uGenotypeSize];
@@ -184,7 +185,7 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       vector<Real> vecMotherValues = cMotherGenotype.GetValues();
       vector<Real> vecFatherValues = cFatherGenotype.GetValues();
       // First chunk until cutoff
-      LOGERR << "BAF."; LOGERR.Flush();
+      LOGERR << "BF."; LOGERR.Flush();
       for(UInt32 i = 0; i < nCutoffPoint ; ++i){
          if(fParentChoiceRandom < 0.5){
             pf_control_parameters[i] = vecMotherValues[i];
@@ -193,7 +194,6 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
             pf_control_parameters[i] = vecFatherValues[i];
          }
       }
-      LOGERR << "A1F."; LOGERR.Flush();
       // Second chunk from cutoff to the end. We use the same random number so if before we took from mom now
       // we take from dad and viceversa
       for(UInt32 i = nCutoffPoint; i < uGenotypeSize ; ++i){
@@ -211,14 +211,17 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       return offSpringGenotype;
    }
    else{
+      LOGERR << "1EL."; LOGERR.Flush();
       Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
       if(fParentChoiceRandom < 0.5){
+         LOGERR << "2IF."; LOGERR.Flush();
          CGenotype offSpringGenotype(cMotherGenotype);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
          return offSpringGenotype;
       }
       else{
+         LOGERR << "2EL."; LOGERR.Flush();
          CGenotype offSpringGenotype(cFatherGenotype);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
