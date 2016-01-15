@@ -165,13 +165,13 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
    LOGERR << "E."; LOGERR.Flush();
    CGenotype& cMotherGenotype = GetControlParameters(0);
-   LOGERR << "M:" << cMotherGenotype << "."; LOGERR.Flush();
+   LOGERR << "M."; LOGERR.Flush();
    
    
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
    LOGERR << "FID."; LOGERR.Flush();
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
-   LOGERR << "M:" << cFatherGenotype << "."; LOGERR.Flush();
+   LOGERR << "M:" << nFatherID << "."; LOGERR.Flush();
    
    UInt32 uGenotypeSize = cMotherGenotype.GetSize();
    LOGERR << "GS."; LOGERR.Flush();
