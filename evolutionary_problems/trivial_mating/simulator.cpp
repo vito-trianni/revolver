@@ -14,6 +14,7 @@ const string CONFIGURATION_BETA_FITNESS_WEIGHT_FACTOR   = "beta_fitness_weight_f
 
 const string CONFIGURATION_WRITE_RESULTS                = "write_results";
 const string CONFIGURATION_RESULTS_FILENAME             = "results_filename";
+const string CONFIGURATION_ENDRUN_RESULTS_BASENAME      = "results_endrune_basename";
 
 /****************************************/
 /****************************************/
@@ -34,7 +35,9 @@ CSimulator::CSimulator():
     m_fStimulusTaskB(0.0),
     m_bWriteResults(false),
     m_sResultsFilename(""),
-    m_sExperimentFilename("")
+    m_sEndrunResultsBasename(""),
+    m_sExperimentFilename(""),
+    m_fMonomorphicGenotype(0.0)
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
       CRandom::CreateCategory(  "simulator", 1 );
@@ -71,6 +74,7 @@ void CSimulator::LoadExperiment(){
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_WRITE_RESULTS, m_bWriteResults );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sResultsFilename);
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sEndrunResultsBasename);
     
     if(m_bWriteResults){
         ostringstream filename;
@@ -79,6 +83,14 @@ void CSimulator::LoadExperiment(){
         filename << m_sResultsFilename;
         outputResults.open( filename.str().c_str(), ios::out );
         outputResults << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
+        
+        ostringstream endRunFilename;
+        endRunFilename.fill( '0' );
+        endRunFilename.str("");
+        endRunFilename << m_sEndrunResultsBasename;
+        endRunFilename << "_thr";
+        endRunFilename << m_fMonomorphicGenotype;
+        endRunFilename << ".txt";
     }
 }
 
@@ -171,6 +183,8 @@ void CSimulator::Execute(){
         
         //m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA * (Real) actionsThisTimestep.m_unTaskA;
         //m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB * (Real) actionsThisTimestep.m_unTaskB;
+        
+        WriteResults(uTimestep);
         
         uTimestep++;
     }

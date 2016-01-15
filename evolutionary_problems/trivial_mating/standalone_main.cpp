@@ -70,7 +70,12 @@ Real f_recombination_factor = 0.5;
 
 CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 
-UInt32 vun_complete_genotype[4] = {10.0,10.0,10.0,10.0 } ;
+Real f_monomorphic_genotype = 10;
+
+UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,
+                                   f_monomorphic_genotype,
+                                   f_monomorphic_genotype,
+                                   f_monomorphic_genotype } ;
 
 
 CEvaluationConfig generateFoundingTeam(CSimulator& sim){
@@ -165,6 +170,7 @@ int main(int argc, char** argv) {
 	      // LOG << "[INVALID] working directory is: " << get_current_dir_name() << endl;
       }
       cSimulator.SetRandomSeed(u_r_seed);
+      cSimulator.SetMonomorphicGenotype(f_monomorphic_genotype);
       cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);
       cSimulator.LoadExperiment();
    }

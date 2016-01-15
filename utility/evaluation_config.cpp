@@ -163,21 +163,21 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 /****************************************/
 
 CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
+   LOGERR << "E."; LOGERR.Flush();
    CGenotype& cMotherGenotype = GetControlParameters(0);
+   LOGERR << "M:" << cMotherGenotype << "."; LOGERR.Flush();
+   
    
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
+   LOGERR << "FID."; LOGERR.Flush();
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
-   
-   //LOGERR << "Recombination factor: " << m_fRecombinationFactor << std::endl;
-   
-   //LOGERR << "Mother: " << cMotherGenotype << endl;
-   //LOGERR << "Father: " << cFatherGenotype << endl;
+   LOGERR << "M:" << cFatherGenotype << "."; LOGERR.Flush();
    
    UInt32 uGenotypeSize = cMotherGenotype.GetSize();
-   
+   LOGERR << "GS."; LOGERR.Flush();
+      
    Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
    if(fRecombineRandom < m_fRecombinationFactor){
-      LOGERR << "1IF."; LOGERR.Flush();
       // Single (random) point crossover
       UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
       Real pf_control_parameters[uGenotypeSize];
@@ -185,7 +185,6 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       vector<Real> vecMotherValues = cMotherGenotype.GetValues();
       vector<Real> vecFatherValues = cFatherGenotype.GetValues();
       // First chunk until cutoff
-      LOGERR << "BF."; LOGERR.Flush();
       for(UInt32 i = 0; i < nCutoffPoint ; ++i){
          if(fParentChoiceRandom < 0.5){
             pf_control_parameters[i] = vecMotherValues[i];
@@ -204,24 +203,20 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
             pf_control_parameters[i] = vecMotherValues[i];
          }
       }
-      LOGERR << "A2F."; LOGERR.Flush();
       CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
    }
    else{
-      LOGERR << "1EL."; LOGERR.Flush();
       Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
       if(fParentChoiceRandom < 0.5){
-         LOGERR << "2IF."; LOGERR.Flush();
          CGenotype offSpringGenotype(cMotherGenotype);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
          return offSpringGenotype;
       }
       else{
-         LOGERR << "2EL."; LOGERR.Flush();
          CGenotype offSpringGenotype(cFatherGenotype);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());

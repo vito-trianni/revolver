@@ -13,6 +13,7 @@
   beta_fitness_weight_factor  = "0.75"
   write_results               = "true"
   results_filename            = "/home/ubuntu/Dropbox/evobranching/results.txt"
+  results_endrune_basename    = "/home/ubuntu/Dropbox/evobranching/endrun"
   >
   
 </simulator>

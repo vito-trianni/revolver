@@ -76,8 +76,12 @@ class CSimulator {
    string m_sExperimentFilename;
    bool m_bWriteResults;
    string m_sResultsFilename;
+   string m_sEndrunResultsBasename;
    ofstream outputResults;
    
+   
+   // other variables
+   Real m_fMonomorphicGenotype;
    
  public:
    CSimulator();
@@ -90,6 +94,7 @@ class CSimulator {
    virtual void LoadExperiment();
    
    virtual void SetControlParameters(CEvaluationConfig* e_config);
+   inline void SetMonomorphicGenotype(Real f_monomorphic_genotype){m_fMonomorphicGenotype = f_monomorphic_genotype;};
    
    virtual void WriteResults(UInt32 u_timestep);
    
