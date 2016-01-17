@@ -17,3 +17,6 @@ add_library(argos_utility SHARED
   configuration/tinyxml/tinyxmlerror.cpp
   configuration/tinyxml/tinyxmlparser.cpp
 )
+
+
+TARGET_LINK_LIBRARIES(argos_utility ${GSL_LIBRARIES})

@@ -18,11 +18,7 @@ namespace argos {
 
 #include <map>
 
-#ifdef ARGOS_WITH_GSL
-#   include <gsl/gsl_rng.h>
-#else
-#   include <cstdlib>
-#endif
+#include <gsl/gsl_rng.h>
 
 namespace argos {
 
@@ -225,12 +221,7 @@ namespace argos {
 
          UInt32 m_unSeed;
          std::string m_strType;
-#ifdef ARGOS_WITH_GSL
          gsl_rng* m_ptRNG;
-#else
-         random_data* m_ptRNG;
-         char* m_pchRNGState;
-#endif
          CRange<UInt32>* m_pcIntegerRNGRange;
 
       };
@@ -381,18 +372,12 @@ namespace argos {
        * correspond to those available in your installed version of GSL.
        * @return the list of available RNG types.       
        */
-#ifdef ARGOS_WITH_GSL
-      inline static const gsl_rng_type** GetRNGTypes() {
-         return m_pptRNGTypes;
-      }
-#endif
+     inline static const gsl_rng_type** GetRNGTypes() {return m_pptRNGTypes;}
 
    private:
 
       static std::map<std::string, CCategory*> m_mapCategories;
-#ifdef ARGOS_WITH_GSL
       static const gsl_rng_type** m_pptRNGTypes;
-#endif
 
    };
 

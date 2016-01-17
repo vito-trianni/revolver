@@ -163,20 +163,16 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 /****************************************/
 
 CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
-   LOGERR << "E."; LOGERR.Flush();
    CGenotype& cMotherGenotype = GetControlParameters(0);
-   LOGERR << "M."; LOGERR.Flush();
-   
-   
+
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
-   LOGERR << "FID."; LOGERR.Flush();
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
-   LOGERR << "M:" << nFatherID << "."; LOGERR.Flush();
-   
+
    UInt32 uGenotypeSize = cMotherGenotype.GetSize();
-   LOGERR << "GS."; LOGERR.Flush();
+   LOGERR << "BR."; LOGERR.Flush();
       
    Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+   LOGERR << "AR."; LOGERR.Flush();
    if(fRecombineRandom < m_fRecombinationFactor){
       // Single (random) point crossover
       UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
