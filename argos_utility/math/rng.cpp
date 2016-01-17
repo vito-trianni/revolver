@@ -218,11 +218,13 @@ namespace argos {
    UInt32 CRandom::CRNG::Uniform(const CRange<UInt32>& c_range) {
       UInt32 unRetVal;
 #ifdef ARGOS_WITH_GSL
+      LOGERR << "Using gsl" << std::endl; LOGERR.Flush();
       do {
          m_pcIntegerRNGRange->MapValueIntoRange(unRetVal, gsl_rng_get(m_ptRNG), c_range);
       } while(unRetVal == c_range.GetMax());
       return unRetVal;
 #else
+      LOGERR << "NOT Using gsl" << std::endl; LOGERR.Flush();
       UInt32 unNumber;
       random_r(m_ptRNG, reinterpret_cast<int32_t*>(&unNumber));
       do {
