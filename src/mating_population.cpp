@@ -146,7 +146,6 @@ void CMatingPopulation::Update() {
       
       //LOGERR << "Finito generating team "  << endl << endl;
    }
-   LOGERR << "===" << std::endl; LOGERR.Flush();
    
    // fitness proportional selection with elitism
    m_vecTeams.swap(m_vecTeamsOffsprings);
