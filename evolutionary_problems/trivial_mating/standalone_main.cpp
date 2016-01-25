@@ -167,8 +167,7 @@ int main(int argc, char** argv) {
       /* Change working directory */
       if( s_working_dir != "" ) {
 	      chdir( s_working_dir.c_str() );
-	      // LOG << "[INVALID] working directory is: " << get_current_dir_name() << endl;
-      }
+	   }
       cSimulator.SetRandomSeed(u_r_seed);
       cSimulator.SetMonomorphicGenotype(f_monomorphic_genotype);
       cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);

@@ -247,12 +247,13 @@ void CParallelEvolution::ReceiveIndividualFitness() {
    SInt32 tid;
    MPI::Status status;
 
-   UInt32 num_objs = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples() + 
-      m_pcEvaluationStrategy->GetTeamSize();
+   //UInt32 num_objs = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples() + 
+   //   m_pcEvaluationStrategy->GetTeamSize();
+   UInt32 num_objs = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples();
    Real objs[num_objs];
    m_cEvaluatorComm.Recv(objs, num_objs, MPI_ARGOSREAL, MPI_ANY_SOURCE, 1, status);
    
-   // get the indi vidual number and reset the process2individual map
+   // get the individual number and reset the process2individual map
    tid = status.Get_source();
    UInt32 un_individual = m_mapProcessToIndividual[tid];
    m_mapProcessToIndividual[tid] = -1;
@@ -264,10 +265,10 @@ void CParallelEvolution::ReceiveIndividualFitness() {
    }
    
    // set the teams with which the individual participated
-   vector<UInt32> vec_teams;
-   for( UInt32 i = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples(); i < num_objs; i++ ) {
-      vec_teams.push_back( (UInt32)rint(objs[i]) );
-   }
+   // vector<UInt32> vec_teams;
+   // for( UInt32 i = m_pcPopulation->GetNumObjectives()*m_pcEvaluationStrategy->GetNumSamples(); i < num_objs; i++ ) {
+   //    vec_teams.push_back( (UInt32)rint(objs[i]) );
+   // }
    
    
 

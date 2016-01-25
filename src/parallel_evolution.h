@@ -52,6 +52,9 @@ class CParallelEvolution : public CEvolution {
    // another semi-porcata: since we cannot get rid of evaluation configs, we override this
    virtual void ClearLoggingStructures(){};
 
+   // another semi-porcata: we don't need to dump evaluation. Population (revolver) will dump everything including fitness and other metrics
+   virtual void DumpEvaluationResults(){};
+
 };
 
 #endif

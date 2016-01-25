@@ -94,8 +94,7 @@ int main(int argc, char** argv) {
       /* Change working directory */
       if( s_working_dir != "" ) {
 	 chdir( s_working_dir.c_str() );
-	 // LOG << "[INVALID] working directory is: " << get_current_dir_name() << endl;
-      }
+	   }
 
       CDynamicLoading::LoadAllLibraries();
       cSimulator.SetExperimentFileName(cCommandLineArgs.GetExperimentConfigFile());
