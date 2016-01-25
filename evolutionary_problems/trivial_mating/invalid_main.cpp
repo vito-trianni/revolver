@@ -96,10 +96,6 @@ int main(int argc, char** argv) {
       
       /* Parse command line */
       cCommandLineArgs.Parse(argc, argv);
-      
-      LOGERR << "Working dir parsed " << s_working_dir << std::endl;
-      LOGERR << "Invalid xml name parsed " << invalid_xml_configuration_filename << std::endl;
-      LOGERR.Flush();
 
       /* Change working directory */
       if( s_working_dir != "" ) {
