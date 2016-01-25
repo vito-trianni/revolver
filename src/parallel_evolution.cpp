@@ -67,7 +67,7 @@ void CParallelEvolution::StartEvaluationProcess() {
    char** c_args = new char*[6];
    c_args[0] = strdup(m_sInvalidName.c_str());
    c_args[1] = strdup("-c");
-   c_args[2] = strdup((m_sWorkingDir+"/"+m_sExperimentConfigurationFile).c_str());
+   c_args[2] = strdup((m_sExperimentConfigurationFile).c_str());
    c_args[3] = strdup( "-d" );;
    c_args[4] = strdup(m_sWorkingDir.c_str());;
    c_args[5] = NULL;
