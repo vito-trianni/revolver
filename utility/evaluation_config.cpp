@@ -169,10 +169,7 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
 
    UInt32 uGenotypeSize = cMotherGenotype.GetSize();
-   LOGERR << "BR."; LOGERR.Flush();
-      
    Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
-   LOGERR << "AR."; LOGERR.Flush();
    if(fRecombineRandom < m_fRecombinationFactor){
       // Single (random) point crossover
       UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
