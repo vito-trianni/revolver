@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
       cSimulator.Execute();
       
       // retrieve the fitness values
-      Real fitness = cSimulator.ComputePerformanceInExperiment();
+      CObjectives cPerformance = cSimulator.ComputePerformanceInExperiment();
       
       // TODO: Do something with the fitness
    }

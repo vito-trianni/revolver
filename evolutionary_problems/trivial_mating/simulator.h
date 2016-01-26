@@ -20,8 +20,17 @@ class CSimulator {
     // Control parameters
     Real m_fThresholdTaskA;
     Real m_fThresholdTaskB;
+    // Current task executed by agent. Needed for determining task switching (otherwise system is memoryless).
+    // 0 is idle, 1 is task A, 2 is task B, and so on (if more than 2). 
+    // In this current implementation I won't track idle agents.
+    // This is because we are assuming doing A -> (idle)+ -> A is equivalent to A -> A
+    UInt32 m_unCurrentTask;
     // A counter that is used to wait while switching (in presence of switching cost)
     UInt32 m_unSwitchingTimestep;
+    // A counter that counts how many times the task was NOT switched
+    UInt32 m_unNonSwitchingTaskCounter;
+    // A counter that counts how many total actions the agent has done
+    UInt32 m_unTotalActionsPerAgent;
    };
    
    struct Actions {
@@ -60,6 +69,8 @@ class CSimulator {
    UInt32 m_unSwitchingCost;
    // beta weight factor for fitness
    Real m_fBetaFitnessWeightFactor;
+   // sigma standard deviation for fitness 2 formula. 0.1 in Duarte's experiments
+   Real m_fSigmaFitness2;
  
    // fitness of the experiment
    Real m_fFitness;
@@ -79,9 +90,9 @@ class CSimulator {
    string m_sEndrunResultsBasename;
    ofstream outputResults;
    
-   
    // other variables
    Real m_fMonomorphicGenotype;
+   string m_sFitnessToUse;
    
  public:
    CSimulator();
@@ -100,7 +111,7 @@ class CSimulator {
    
    virtual void Execute();
    
-   virtual Real ComputePerformanceInExperiment();
+   virtual CObjectives ComputePerformanceInExperiment();
    
    virtual CRandom::CRNG* GetRNG(){return m_pcRNG;};
    

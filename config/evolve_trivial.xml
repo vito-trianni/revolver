@@ -19,7 +19,7 @@
     gene_value_range = "0:100"
     mutation_variance = "0.1"
     mutation_probability = "0.1"
-    num_objectives = "1"
+    num_objectives = "7"
     recombination_factor = "0.5"
     genotype_monomorphic_init_value = "10.0"
     founding_team_size = "2">

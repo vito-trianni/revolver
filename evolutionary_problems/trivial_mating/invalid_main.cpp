@@ -209,8 +209,10 @@ int main(int argc, char** argv) {
 	      cSimulator.Execute();
 
 	      // retrieve the fitness values
-	      Real fitness = cSimulator.ComputePerformanceInExperiment();
-	      CObjectives objs(1,&fitness);
+	      //Real fitness = cSimulator.ComputePerformanceInExperiment();
+	      //CObjectives objs(1,&fitness);
+
+         CObjectives objs = cSimulator.ComputePerformanceInExperiment();
 
 	      vec_results.push_back( objs );
 
