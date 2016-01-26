@@ -191,7 +191,7 @@ void CEvolution::DumpPopulation() {
    filename.fill( '0' );
 
    filename.str("");
-   filename << m_sWorkingDir << "/" << m_sEvolutionBaseFilename << "_gen" << setw(4) << m_unNumGeneration << ".log";
+   filename << m_sWorkingDir << "/" << m_sEvolutionBaseFilename << "_gen" << setw(6) << m_unNumGeneration << ".log";
    m_pcPopulation->Dump( filename.str() );
 }
 
@@ -205,7 +205,7 @@ void CEvolution::DumpEvaluationResults() {
    ostringstream filename;
    filename.fill( '0' );
    filename.str("");
-   filename << m_sWorkingDir << "/" << m_sEvaluationBaseFilename << "_gen" << setw(4) << m_unNumGeneration << ".log";
+   filename << m_sWorkingDir << "/" << m_sEvaluationBaseFilename << "_gen" << setw(6) << m_unNumGeneration << ".log";
    out.open( filename.str().c_str(), ios::out );
    for( UInt32 i = 0; i < m_pcPopulation->GetSize(); ++i ) {
       out << *m_vecEvaluationConfigurations[i];
@@ -221,7 +221,7 @@ void CEvolution::DumpBestIndividuals() {
    ofstream out;
    ostringstream filename;
    filename.fill( '0' );
-   filename << m_sWorkingDir << "/" << m_sBestIndividualBaseFilename << "_gen" << setw(4) << m_unNumGeneration << ".log";
+   filename << m_sWorkingDir << "/" << m_sBestIndividualBaseFilename << "_gen" << setw(6) << m_unNumGeneration << ".log";
    m_pcPopulation->DumpBestIndividuals( filename.str() );
 }
 

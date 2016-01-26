@@ -272,7 +272,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fAveragedProbabilityQPerformingSameTask += (Real) agents[i].m_unNonSwitchingTaskCounter / (Real) agents[i].m_unTotalActionsPerAgent;
     }
     fAveragedProbabilityQPerformingSameTask /= m_unColonySize;
-    fSpecialization = (fAveragedProbabilityQPerformingSameTask / ( (fOverallProportionTaskA*fOverallProportionTaskA)+(fOverallProportionTaskB*fOverallProportionTaskB) )) - 1.0;
+    if(fOverallProportionTaskA > 0.0 && fOverallProportionTaskB > 0.0){
+        fSpecialization = (fAveragedProbabilityQPerformingSameTask / ( (fOverallProportionTaskA*fOverallProportionTaskA)+(fOverallProportionTaskB*fOverallProportionTaskB) )) - 1.0;
+    }
     
     // LOGERR << "Fit1: " << fFitness1;
     // LOGERR << " fit2: " << fFitness2;

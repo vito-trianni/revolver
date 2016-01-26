@@ -197,6 +197,7 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
          }
       }
       CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
+      offSpringGenotype.Reset();
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
@@ -205,12 +206,14 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
       if(fParentChoiceRandom < 0.5){
          CGenotype offSpringGenotype(cMotherGenotype);
+         offSpringGenotype.Reset();
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
          return offSpringGenotype;
       }
       else{
          CGenotype offSpringGenotype(cFatherGenotype);
+         offSpringGenotype.Reset();
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
          return offSpringGenotype;

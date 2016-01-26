@@ -59,4 +59,14 @@ add_executable(standaloneTrivialMating ${standaloneTrivialMating_IMPLEMENTATIONS
   utility
 )
 
+set(resultsParser_IMPLEMENTATIONS
+  ../evolutionary_problems/trivial_mating/results_parser.cpp
+  ../evolutionary_problems/trivial_mating/simulator.cpp
+)
 
+
+add_executable(resultsParser ${resultsParser_IMPLEMENTATIONS})
+  target_link_libraries(resultsParser
+  argos_utility
+  utility
+)
