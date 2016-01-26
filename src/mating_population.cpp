@@ -189,7 +189,6 @@ void CMatingPopulation::SetPerformance( const UInt32& un_individual_number, CObj
 /****************************************/
 
 Real CMatingPopulation::GetIndividualFitness( const UInt32& un_individual_number ) {
-   //return m_vecIndividuals[un_individual_number].GetPerformance()[0];
    return m_vecTeams[un_individual_number]->GetEvaluationResults()[0][0];
 };
 

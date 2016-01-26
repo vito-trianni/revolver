@@ -89,6 +89,7 @@ class CSimulator {
    string m_sResultsFilename;
    string m_sEndrunResultsBasename;
    ofstream outputResults;
+   ofstream outputResultsEndrun;
    
    // other variables
    Real m_fMonomorphicGenotype;

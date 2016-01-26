@@ -83,7 +83,7 @@ void CSimulator::LoadExperiment(){
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_WRITE_RESULTS, m_bWriteResults );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sResultsFilename);
-    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sEndrunResultsBasename);
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_ENDRUN_RESULTS_BASENAME, m_sEndrunResultsBasename);
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_TO_USE, m_sFitnessToUse);
     
@@ -94,14 +94,7 @@ void CSimulator::LoadExperiment(){
         filename << m_sResultsFilename;
         outputResults.open( filename.str().c_str(), ios::out );
         outputResults << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
-        
-        ostringstream endRunFilename;
-        endRunFilename.fill( '0' );
-        endRunFilename.str("");
-        endRunFilename << m_sEndrunResultsBasename;
-        endRunFilename << "_thr";
-        endRunFilename << m_fMonomorphicGenotype;
-        endRunFilename << ".txt";
+
     }
 }
 
@@ -132,13 +125,13 @@ void CSimulator::WriteResults(UInt32 u_timestep){
   
         Real fFitness = (pow((Real)actionsOverTime[u_timestep].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[u_timestep].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
         
-        outputResults << u_timestep << "\t";
-        outputResults << m_fStimulusTaskA << "\t";
-        outputResults << m_fStimulusTaskB << "\t";
-        outputResults << actionsOverTime[u_timestep].m_unTaskA << "\t";
-        outputResults << actionsOverTime[u_timestep].m_unTaskB << "\t";
-        outputResults << actionsOverTime[u_timestep].m_unIdle  << "\t";
-        outputResults << fFitness  << std::endl;
+        outputResults << u_timestep                             << "\t";
+        outputResults << m_fStimulusTaskA                       << "\t";
+        outputResults << m_fStimulusTaskB                       << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unTaskA  << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unTaskB  << "\t";
+        outputResults << actionsOverTime[u_timestep].m_unIdle   << "\t";
+        outputResults << fFitness                               << std::endl;
     }
 }
 
@@ -290,10 +283,10 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     // LOGERR << " A: " << fOverallTotalActions;
     // LOGERR << std::endl;
     
-    if(m_sFitnessToUse.compare(FITNESS_TYPE_WEAK)){
+    if(m_sFitnessToUse.compare(FITNESS_TYPE_WEAK) == 0){
         cResult.Insert(fFitness1);
     }
-    if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG)){
+    if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG) == 0){
         cResult.Insert(fFitness2);
     }
     
@@ -304,6 +297,25 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     cResult.Insert(fOverallProportionTaskB);
     cResult.Insert(fOverallTotalActions);
     
+    if(m_bWriteResults){
+        ostringstream endRunFilename;
+        endRunFilename.fill( '0' );
+        endRunFilename.str("");
+        endRunFilename << m_sEndrunResultsBasename;
+        endRunFilename << "_thr";
+        endRunFilename << m_fMonomorphicGenotype;
+        endRunFilename << ".txt";
+        
+        outputResultsEndrun.open( endRunFilename.str().c_str(), ios::out );
+        outputResultsEndrun << "Fitness1\tFitness2\tSpec\tpA\tpB\tA" << std::endl;
+        outputResultsEndrun << fFitness1                << "\t";
+        outputResultsEndrun << fFitness2                << "\t";
+        outputResultsEndrun << fSpecialization          << "\t";
+        outputResultsEndrun << fOverallProportionTaskA  << "\t"; 
+        outputResultsEndrun << fOverallProportionTaskB  << "\t";
+        outputResultsEndrun << fOverallTotalActions     << std::endl;
+        outputResultsEndrun.close();
+    }
     
     return cResult;
 }
