@@ -224,10 +224,8 @@ void CSimulator::Execute(){
 
 CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
-    //Real fFitness1 = 0.0;
-    //Real fFitness2 = 0.0;
-    Real fFitness1 = 1.0;
-    Real fFitness2 = 1.0;
+    Real fFitness1 = 0.0;
+    Real fFitness2 = 0.0;
     UInt32 uOverallTotalActionsA = 0;
     UInt32 uOverallTotalActionsB = 0;
     Real fOverallProportionTaskA = 0.0;
@@ -236,6 +234,13 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     Real fSpecialization = 0.0;
     
     UInt32 uTimestepsToEvaluate = 90;
+    
+    double mantissaFit1 = 1.0;
+    long long expFit1 = 0;
+    double mantissaFit2 = 1.0;
+    long long expFit2 = 0;
+    double invN = 1.0 / uTimestepsToEvaluate;
+    
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
         
         uOverallTotalActionsA += actionsOverTime[i].m_unTaskA;
@@ -244,7 +249,12 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskB;
         
         //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        fFitness1 *= (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        Real currentFitness1 = (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        int iFit1;
+        double f1 = std::frexp(currentFitness1,&iFit1);
+        mantissaFit1*=f1;
+        expFit1+=iFit1;
+        
         
         Real fTotalActions    = ((Real)actionsOverTime[i].m_unTaskA + (Real)actionsOverTime[i].m_unTaskB);
         Real fProportionTaskA = 0.0;
@@ -260,15 +270,20 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         
         Real fFitness2ThisTimestep = fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
         
+        int iFit2;
+        double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
+        mantissaFit2*=f2;
+        expFit2+=iFit2;
+        
         //fFitness2 += fFitness2ThisTimestep;
-        fFitness2 *= fFitness2ThisTimestep;
+        
         
     }
     
     //fFitness1 /= uTimestepsToEvaluate;
     //fFitness2 /= uTimestepsToEvaluate;
-    fFitness1 = pow(fFitness1,1.0/ (Real)uTimestepsToEvaluate);
-    fFitness2 = pow(fFitness2,1.0/ (Real)uTimestepsToEvaluate);
+    fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
+    fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
     
     fOverallProportionTaskA = (Real) uOverallTotalActionsA / fOverallTotalActions;
     fOverallProportionTaskB = (Real) uOverallTotalActionsB / fOverallTotalActions;

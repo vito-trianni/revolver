@@ -70,7 +70,7 @@ Real f_recombination_factor = 0.5;
 
 CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 
-Real f_monomorphic_genotype = 10;
+Real f_monomorphic_genotype = 10.0;
 
 UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,
                                    f_monomorphic_genotype,

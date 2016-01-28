@@ -2,6 +2,7 @@
 #define _SIMULATOR_H_
 
 #include <algorithm>
+#include <limits>
 // #include <fstream>
 // #include <sstream>
 // #include <iomanip>
