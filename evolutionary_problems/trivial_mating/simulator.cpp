@@ -224,8 +224,10 @@ void CSimulator::Execute(){
 
 CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
-    Real fFitness1 = 0.0;
-    Real fFitness2 = 0.0;
+    //Real fFitness1 = 0.0;
+    //Real fFitness2 = 0.0;
+    Real fFitness1 = 1.0;
+    Real fFitness2 = 1.0;
     UInt32 uOverallTotalActionsA = 0;
     UInt32 uOverallTotalActionsB = 0;
     Real fOverallProportionTaskA = 0.0;
