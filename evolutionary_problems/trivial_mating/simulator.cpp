@@ -233,7 +233,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     Real fOverallTotalActions = 0.0;
     Real fSpecialization = 0.0;
     
-    UInt32 uTimestepsToEvaluate = 100;
+    UInt32 uTimestepsToEvaluate = 90;
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
         
         uOverallTotalActionsA += actionsOverTime[i].m_unTaskA;
@@ -241,7 +241,8 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskA;
         fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskB;
         
-        fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        fFitness1 *= (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
         
         Real fTotalActions    = ((Real)actionsOverTime[i].m_unTaskA + (Real)actionsOverTime[i].m_unTaskB);
         Real fProportionTaskA = 0.0;
@@ -257,12 +258,15 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         
         Real fFitness2ThisTimestep = fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
         
-        fFitness2 += fFitness2ThisTimestep;
+        //fFitness2 += fFitness2ThisTimestep;
+        fFitness2 *= fFitness2ThisTimestep;
         
     }
     
-    fFitness1 /= uTimestepsToEvaluate;
-    fFitness2 /= uTimestepsToEvaluate;
+    //fFitness1 /= uTimestepsToEvaluate;
+    //fFitness2 /= uTimestepsToEvaluate;
+    fFitness1 = pow(fFitness1,1.0/ (Real)uTimestepsToEvaluate);
+    fFitness2 = pow(fFitness2,1.0/ (Real)uTimestepsToEvaluate);
     
     fOverallProportionTaskA = (Real) uOverallTotalActionsA / fOverallTotalActions;
     fOverallProportionTaskB = (Real) uOverallTotalActionsB / fOverallTotalActions;
