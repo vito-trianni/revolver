@@ -249,7 +249,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskB;
         
         //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        Real currentFitness1 = (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        Real currentFitness1 = (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) * pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
         int iFit1;
         double f1 = std::frexp(currentFitness1,&iFit1);
         mantissaFit1*=f1;
