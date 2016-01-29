@@ -300,7 +300,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     Real fFitness2 = 0.0;
 
     
-    UInt32 uTimestepsToEvaluate = 90;
+    UInt32 uTimestepsToEvaluate = 100;
     
     double mantissaFit1 = 1.0;
     long long expFit1 = 0;
