@@ -84,6 +84,13 @@ class CSimulator {
    Real m_fStimulusTaskA;
    Real m_fStimulusTaskB;
    
+   UInt32 m_unOverallTotalActionsA;
+   UInt32 m_unOverallTotalActionsB;
+   Real m_fOverallProportionTaskA;
+   Real m_fOverallProportionTaskB;
+   Real m_fOverallTotalActions;
+   Real m_fSpecialization;
+   
    // filenames and directories
    string m_sExperimentFilename;
    bool m_bWriteResults;
@@ -113,6 +120,9 @@ class CSimulator {
    
    virtual void Execute();
    
+   virtual Real ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B);
+   virtual Real ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B);
+   virtual Real ComputeSpecializationUpToTimestep(UInt32 u_end_timestep);
    virtual CObjectives ComputePerformanceInExperiment();
    
    virtual CRandom::CRNG* GetRNG(){return m_pcRNG;};

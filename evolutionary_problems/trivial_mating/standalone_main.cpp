@@ -72,10 +72,15 @@ CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 
 Real f_monomorphic_genotype = 10.0;
 
-UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,
-                                   f_monomorphic_genotype,
-                                   f_monomorphic_genotype,
-                                   f_monomorphic_genotype } ;
+// UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,    // Mother A threshold
+//                                   f_monomorphic_genotype,    // Mother B threshold
+//                                   f_monomorphic_genotype,    // Father A threshold
+//                                   f_monomorphic_genotype } ; // Father B threshold
+                                   
+UInt32 vun_complete_genotype[4] = {0.0,     // Mother A threshold
+                                   11.0,    // Mother B threshold
+                                   0.0,     // Father A threshold
+                                   22.0 } ; // Father B threshold
 
 
 CEvaluationConfig generateFoundingTeam(CSimulator& sim){

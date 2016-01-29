@@ -40,6 +40,12 @@ CSimulator::CSimulator():
     m_fFitness(0.0),
     m_fStimulusTaskA(0.0),
     m_fStimulusTaskB(0.0),
+    m_unOverallTotalActionsA(0),
+    m_unOverallTotalActionsB(0),
+    m_fOverallProportionTaskA(0.0),
+    m_fOverallProportionTaskB(0.0),
+    m_fOverallTotalActions(0.0),
+    m_fSpecialization(0.0),
     m_bWriteResults(false),
     m_sResultsFilename(""),
     m_sEndrunResultsBasename(""),
@@ -93,7 +99,7 @@ void CSimulator::LoadExperiment(){
         filename.str("");
         filename << m_sResultsFilename;
         outputResults.open( filename.str().c_str(), ios::out );
-        outputResults << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness" << std::endl;
+        outputResults << "Timestep\tStimA\tStimB\tRobotsA\tRobotsB\tRobotsIDLE\tFitness1\tFitness2\tSpecialization" << std::endl;
 
     }
 }
@@ -115,6 +121,68 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
     }
 }
 
+/****************************************/
+/****************************************/
+
+Real CSimulator::ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B){
+    return (pow((Real)u_actions_A,m_fBetaFitnessWeightFactor) * pow((Real)u_actions_B,1.0 - m_fBetaFitnessWeightFactor));
+}
+
+/****************************************/
+/****************************************/
+
+Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
+    Real fTotalActions    = ((Real)u_actions_A + (Real)u_actions_B);
+    Real fProportionTaskA = 0.0;
+    Real fProportionTaskB = 0.0;
+    if( fTotalActions > 0.0){
+        fProportionTaskA = (Real)u_actions_A / fTotalActions;
+        fProportionTaskB = (Real)u_actions_B / fTotalActions;
+    }
+    return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+}
+
+/****************************************/
+/****************************************/
+
+Real CSimulator::ComputeSpecializationUpToTimestep(UInt32 u_end_timestep){
+    m_unOverallTotalActionsA = 0;
+    m_unOverallTotalActionsB = 0;
+    m_fOverallProportionTaskA = 0.0;
+    m_fOverallProportionTaskB = 0.0;
+    m_fOverallTotalActions = 0.0;
+    m_fSpecialization = 0.0;
+    for(UInt32 i = 0; i < u_end_timestep; ++i){
+        m_unOverallTotalActionsA += actionsOverTime[i].m_unTaskA;
+        m_unOverallTotalActionsB += actionsOverTime[i].m_unTaskB;
+        m_fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskA;
+        m_fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskB;
+    }
+    
+    if(m_fOverallTotalActions > 0.0){
+        m_fOverallProportionTaskA = (Real) m_unOverallTotalActionsA / m_fOverallTotalActions;
+        m_fOverallProportionTaskB = (Real) m_unOverallTotalActionsB / m_fOverallTotalActions;    
+    }
+    
+    Real fAveragedProbabilityQPerformingSameTask = 0.0;
+    
+    UInt32 m_unNumAgentsThatWorkedAtLeastTwice = 0;
+    
+    for(UInt32 i = 0 ; i < m_unColonySize ; ++i) {
+        if(agents[i].m_unNonSwitchingTaskCounter > 0){
+            fAveragedProbabilityQPerformingSameTask += (Real) agents[i].m_unNonSwitchingTaskCounter / (Real) agents[i].m_unTotalActionsPerAgent;
+            m_unNumAgentsThatWorkedAtLeastTwice++;
+        }
+    }
+    if(m_unNumAgentsThatWorkedAtLeastTwice > 0){
+        fAveragedProbabilityQPerformingSameTask /= m_unNumAgentsThatWorkedAtLeastTwice;
+    }
+    
+    if(m_fOverallProportionTaskA > 0.0 && m_fOverallProportionTaskB > 0.0){
+        m_fSpecialization = (fAveragedProbabilityQPerformingSameTask / ( (m_fOverallProportionTaskA*m_fOverallProportionTaskA)+(m_fOverallProportionTaskB*m_fOverallProportionTaskB) )) - 1.0;
+    }
+    return m_fSpecialization;
+}
 
 /****************************************/
 /****************************************/
@@ -123,7 +191,9 @@ void CSimulator::WriteResults(UInt32 u_timestep){
     
     if(m_bWriteResults){
   
-        Real fFitness = (pow((Real)actionsOverTime[u_timestep].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[u_timestep].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+        Real fFitness1 = ComputeFitnessWeak(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB);
+        Real fFitness2 = ComputeFitnessStrong(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB);
+        Real fSpecialization = ComputeSpecializationUpToTimestep(u_timestep);
         
         outputResults << u_timestep                             << "\t";
         outputResults << m_fStimulusTaskA                       << "\t";
@@ -131,7 +201,9 @@ void CSimulator::WriteResults(UInt32 u_timestep){
         outputResults << actionsOverTime[u_timestep].m_unTaskA  << "\t";
         outputResults << actionsOverTime[u_timestep].m_unTaskB  << "\t";
         outputResults << actionsOverTime[u_timestep].m_unIdle   << "\t";
-        outputResults << fFitness                               << std::endl;
+        outputResults << fFitness1                              << "\t";
+        outputResults << fFitness2                              << "\t";
+        outputResults << fSpecialization                        << std::endl;
     }
 }
 
@@ -226,12 +298,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
     Real fFitness1 = 0.0;
     Real fFitness2 = 0.0;
-    UInt32 uOverallTotalActionsA = 0;
-    UInt32 uOverallTotalActionsB = 0;
-    Real fOverallProportionTaskA = 0.0;
-    Real fOverallProportionTaskB = 0.0;
-    Real fOverallTotalActions = 0.0;
-    Real fSpecialization = 0.0;
+
     
     UInt32 uTimestepsToEvaluate = 90;
     
@@ -242,18 +309,16 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     double invN = 1.0 / uTimestepsToEvaluate;
     
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
+
+        Real currentFitness1 = ComputeFitnessWeak(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
+        // Arithmetic mean
+        fFitness1 += currentFitness1;
         
-        uOverallTotalActionsA += actionsOverTime[i].m_unTaskA;
-        uOverallTotalActionsB += actionsOverTime[i].m_unTaskB;
-        fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskA;
-        fOverallTotalActions += (Real) actionsOverTime[i].m_unTaskB;
-        
-        //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) + pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        Real currentFitness1 = (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) * pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        int iFit1;
-        double f1 = std::frexp(currentFitness1,&iFit1);
-        mantissaFit1*=f1;
-        expFit1+=iFit1;
+        // Geometric mean
+        // int iFit1;
+        // double f1 = std::frexp(currentFitness1,&iFit1);
+        // mantissaFit1*=f1;
+        // expFit1+=iFit1;
         
         
         Real fTotalActions    = ((Real)actionsOverTime[i].m_unTaskA + (Real)actionsOverTime[i].m_unTaskB);
@@ -268,34 +333,30 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         //LOGERR << " p2: " << fProportionTaskB;
         //LOGERR << " A: " << fTotalActions;
         
-        Real fFitness2ThisTimestep = fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+        Real fFitness2ThisTimestep = ComputeFitnessStrong(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
         
-        int iFit2;
-        double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
-        mantissaFit2*=f2;
-        expFit2+=iFit2;
+        // Arithmetic mean
+        fFitness2 += fFitness2ThisTimestep;
         
-        //fFitness2 += fFitness2ThisTimestep;
+        // Geometric mean
+        // int iFit2;
+        // double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
+        // mantissaFit2*=f2;
+        // expFit2+=iFit2;
+        
         
         
     }
     
-    //fFitness1 /= uTimestepsToEvaluate;
-    //fFitness2 /= uTimestepsToEvaluate;
-    fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
-    fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
+    // Aritmentic mean renormalization
+    fFitness1 /= uTimestepsToEvaluate;
+    fFitness2 /= uTimestepsToEvaluate;
     
-    fOverallProportionTaskA = (Real) uOverallTotalActionsA / fOverallTotalActions;
-    fOverallProportionTaskB = (Real) uOverallTotalActionsB / fOverallTotalActions;
+    // Geometric mean renormalization
+    // fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
+    // fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
     
-    Real fAveragedProbabilityQPerformingSameTask = 0.0;
-    for(UInt32 i = 0 ; i < m_unColonySize ; ++i) {
-        fAveragedProbabilityQPerformingSameTask += (Real) agents[i].m_unNonSwitchingTaskCounter / (Real) agents[i].m_unTotalActionsPerAgent;
-    }
-    fAveragedProbabilityQPerformingSameTask /= m_unColonySize;
-    if(fOverallProportionTaskA > 0.0 && fOverallProportionTaskB > 0.0){
-        fSpecialization = (fAveragedProbabilityQPerformingSameTask / ( (fOverallProportionTaskA*fOverallProportionTaskA)+(fOverallProportionTaskB*fOverallProportionTaskB) )) - 1.0;
-    }
+    Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);
     
     // LOGERR << "Fit1: " << fFitness1;
     // LOGERR << " fit2: " << fFitness2;
@@ -316,9 +377,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     cResult.Insert(fFitness1);
     cResult.Insert(fFitness2);
     cResult.Insert(fSpecialization);
-    cResult.Insert(fOverallProportionTaskA);
-    cResult.Insert(fOverallProportionTaskB);
-    cResult.Insert(fOverallTotalActions);
+    cResult.Insert(m_fOverallProportionTaskA);
+    cResult.Insert(m_fOverallProportionTaskB);
+    cResult.Insert(m_fOverallTotalActions);
     
     if(m_bWriteResults){
         ostringstream endRunFilename;
@@ -334,9 +395,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         outputResultsEndrun << fFitness1                << "\t";
         outputResultsEndrun << fFitness2                << "\t";
         outputResultsEndrun << fSpecialization          << "\t";
-        outputResultsEndrun << fOverallProportionTaskA  << "\t"; 
-        outputResultsEndrun << fOverallProportionTaskB  << "\t";
-        outputResultsEndrun << fOverallTotalActions     << std::endl;
+        outputResultsEndrun << m_fOverallProportionTaskA  << "\t"; 
+        outputResultsEndrun << m_fOverallProportionTaskB  << "\t";
+        outputResultsEndrun << m_fOverallTotalActions     << std::endl;
         outputResultsEndrun.close();
     }
     
@@ -349,6 +410,13 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
 void CSimulator::Reset(){
     m_fStimulusTaskA = 0.0;
     m_fStimulusTaskB = 0.0;
+    
+    m_unOverallTotalActionsA = 0;
+    m_unOverallTotalActionsB = 0;
+    m_fOverallProportionTaskA = 0.0;
+    m_fOverallProportionTaskB = 0.0;
+    m_fOverallTotalActions = 0.0;
+    
     agents.clear();
     actionsOverTime.clear();
 }
