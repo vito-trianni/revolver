@@ -21,6 +21,8 @@ const string CONFIGURATION_FITNESS_TO_USE               = "fitness_to_use";
 
 const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
+const string FITNESS_TYPE_WEAK_OVERALL                  = "weak_overall";
+const string FITNESS_TYPE_STRONG_OVERALL                = "strong_overall";
 
 /****************************************/
 /****************************************/
@@ -140,6 +142,21 @@ Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
         fProportionTaskB = (Real)u_actions_B / fTotalActions;
     }
     return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+}
+
+/****************************************/
+/****************************************/
+
+Real CSimulator::ComputeFitness3OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep){
+    m_unOverallTotalActionsA = 0;
+    m_unOverallTotalActionsB = 0;
+    
+    for(UInt32 i = u_initial_timestep; i < u_end_timestep; ++i){
+        m_unOverallTotalActionsA += actionsOverTime[i].m_unTaskA;
+        m_unOverallTotalActionsB += actionsOverTime[i].m_unTaskB;
+    }
+    
+    return ComputeFitnessWeak(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
 }
 
 /****************************************/
@@ -298,9 +315,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
     Real fFitness1 = 0.0;
     Real fFitness2 = 0.0;
-
+    Real fFitness3 = 0.0;
     
-    UInt32 uTimestepsToEvaluate = 100;
+    UInt32 uTimestepsToEvaluate = 90;
     
     double mantissaFit1 = 1.0;
     long long expFit1 = 0;
@@ -310,15 +327,12 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
 
+        //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) * pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
         Real currentFitness1 = ComputeFitnessWeak(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
-        // Arithmetic mean
-        fFitness1 += currentFitness1;
-        
-        // Geometric mean
-        // int iFit1;
-        // double f1 = std::frexp(currentFitness1,&iFit1);
-        // mantissaFit1*=f1;
-        // expFit1+=iFit1;
+        int iFit1;
+        double f1 = std::frexp(currentFitness1,&iFit1);
+        mantissaFit1*=f1;
+        expFit1+=iFit1;
         
         
         Real fTotalActions    = ((Real)actionsOverTime[i].m_unTaskA + (Real)actionsOverTime[i].m_unTaskB);
@@ -335,26 +349,21 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         
         Real fFitness2ThisTimestep = ComputeFitnessStrong(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
         
-        // Arithmetic mean
-        fFitness2 += fFitness2ThisTimestep;
+        int iFit2;
+        double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
+        mantissaFit2*=f2;
+        expFit2+=iFit2;
         
-        // Geometric mean
-        // int iFit2;
-        // double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
-        // mantissaFit2*=f2;
-        // expFit2+=iFit2;
-        
-        
+        //fFitness2 += fFitness2ThisTimestep;
         
     }
     
-    // Aritmentic mean renormalization
-    fFitness1 /= uTimestepsToEvaluate;
-    fFitness2 /= uTimestepsToEvaluate;
+    //fFitness1 /= uTimestepsToEvaluate;
+    //fFitness2 /= uTimestepsToEvaluate;
+    fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
+    fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
     
-    // Geometric mean renormalization
-    // fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
-    // fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
+    fFitness3 = ComputeFitness3OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     
     Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);
     
@@ -372,6 +381,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     }
     if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG) == 0){
         cResult.Insert(fFitness2);
+    }
+    if(m_sFitnessToUse.compare(FITNESS_TYPE_WEAK_OVERALL) == 0){
+        cResult.Insert(fFitness3);
     }
     
     cResult.Insert(fFitness1);
