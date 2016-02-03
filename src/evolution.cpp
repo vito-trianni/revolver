@@ -245,8 +245,7 @@ void CEvolution::DumpPerformance() {
    }
    out << m_unNumGeneration << " " 
        << m_pcPopulation->GetBestIndividualFitness() << " " 
-       << m_pcPopulation->GetWorstIndividualFitness() << " " 
-       << endl;
+       << m_pcPopulation->GetWorstIndividualFitness()<< endl;
    out.close();
 }
 
