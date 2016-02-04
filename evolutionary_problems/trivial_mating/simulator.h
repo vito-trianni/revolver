@@ -103,6 +103,9 @@ class CSimulator {
    Real m_fMonomorphicGenotype;
    string m_sFitnessToUse;
    
+   string m_sStandaloneGenotypeString;
+   CVector<Real> m_cStandaloneGenotype;
+   
  public:
    CSimulator();
    ~CSimulator();
@@ -130,6 +133,8 @@ class CSimulator {
    
    virtual void Reset();
    virtual void Destroy();
+   
+   virtual CEvaluationConfig GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, Real f_recombination_factor, UInt32 un_num_samples);
 
 };
 

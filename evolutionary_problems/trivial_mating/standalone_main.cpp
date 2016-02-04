@@ -72,58 +72,17 @@ CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 
 Real f_monomorphic_genotype = 10.0;
 
-// UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,    // Mother A threshold
-//                                   f_monomorphic_genotype,    // Mother B threshold
-//                                   f_monomorphic_genotype,    // Father A threshold
-//                                   f_monomorphic_genotype } ; // Father B threshold
+UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,    // Mother A threshold
+                                  f_monomorphic_genotype,    // Mother B threshold
+                                  f_monomorphic_genotype,    // Father A threshold
+                                  f_monomorphic_genotype } ; // Father B threshold
                                    
-UInt32 vun_complete_genotype[4] = {0.0,     // Mother A threshold
-                                   11.0,    // Mother B threshold
-                                   0.0,     // Father A threshold
-                                   22.0 } ; // Father B threshold
+// UInt32 vun_complete_genotype[4] = {0.0,     // Mother A threshold
+//                                   11.0,    // Mother B threshold
+//                                   0.0,     // Father A threshold
+//                                   22.0 } ; // Father B threshold
 
 
-CEvaluationConfig generateFoundingTeam(CSimulator& sim){
-
-   CEvaluationConfig cSingleTeamEC( 1, un_team_size );
-   cSingleTeamEC.SetRecombinationFactor(f_recombination_factor);
-   cSingleTeamEC.SetIndividualIndex(0); 
-   
-   UInt32 m_punEvaluationSeeds[un_num_samples];
-   
-   for( UInt32 i = 0; i < un_num_samples; ++i ) {
-      m_punEvaluationSeeds[i] = sim.GetRNG()->Uniform(CRange<UInt32>(0,INT_MAX));
-   }
-   
-   cSingleTeamEC.SetSampleSeeds(CVector<UInt32>(un_num_samples,m_punEvaluationSeeds));
-   
-   UInt32 uGenotypeCounter = 0;
-      
-   // build a fake team
-   TTeam team;
-   
-   for(UInt32 j = 0; j < un_team_size; ++j){
-      
-      Real pf_control_parameters[un_genotype_length];
-      for(UInt32 k = 0 ; k < un_genotype_length ; ++k){
-         pf_control_parameters[k] = vun_complete_genotype[uGenotypeCounter];
-      }
-      CGenotype cTeamMemberGenotype(un_genotype_length,pf_control_parameters,m_cGenotypeValueRange);
-      cTeamMemberGenotype.SetID(j); 
-      cTeamMemberGenotype.SetRNG(sim.GetRNG());
-      
-      cSingleTeamEC.InsertControlParameters(j,cTeamMemberGenotype);
-      
-      // insert a fake team member
-      team.Insert(j);
-      uGenotypeCounter++;
-   }
-   
-   cSingleTeamEC.InsertTeam(0, team);
-   
-   return cSingleTeamEC;
-}
- 
 int main(int argc, char** argv) {
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -192,9 +151,7 @@ int main(int argc, char** argv) {
    // // Start individual evaluation
    // ////////////////////////////////////////////////////////////////////////////////
 
-   generateFoundingTeam(cSimulator);
-      
-   CEvaluationConfig evaluation_config = generateFoundingTeam(cSimulator);
+   CEvaluationConfig evaluation_config = cSimulator.GenerateFoundingTeam(un_team_size, un_genotype_length, m_cGenotypeValueRange, f_recombination_factor, un_num_samples);
    
    // start evaluation
    for( UInt32 i = 0; i < un_num_samples; ++i ) {
