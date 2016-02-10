@@ -1,5 +1,7 @@
 #include "simulator.h"
 
+const string CONFIGURATION_RANDOM_SEED                  = "random_seed";
+
 const string CONFIGURATION_COLONY_SIZE                  = "colony_size";
 const string CONFIGURATION_TOTAL_DURATION               = "total_duration_timesteps";
 
@@ -77,6 +79,10 @@ void CSimulator::LoadExperiment(){
     tConfiguration.LoadFile(m_sExperimentFilename);
     TConfigurationNode tConfigurationRoot = *tConfiguration.FirstChildElement();
     TConfigurationNode t_simulator_configuration = GetNode(tConfigurationRoot, "simulator"); 
+    
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RANDOM_SEED, m_unRandomSeed );
+    m_pcRNG->SetSeed(m_unRandomSeed); 
+    m_pcRNG->Reset();
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_COLONY_SIZE, m_unColonySize );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_TOTAL_DURATION, m_unTotalDurationTimesteps );

@@ -97,7 +97,6 @@ int main(int argc, char** argv) {
    // fitness base file
    string s_working_dir = "";
    string invalid_xml_configuration_filename = "";
-   UInt32 u_r_seed = 0;
       
    // // define the class for parsing the command line
    CCommandLineArgParser cCommandLineArgs;
@@ -114,11 +113,6 @@ int main(int argc, char** argv) {
 					     "Specify the xml configuration file",
 					     invalid_xml_configuration_filename);
    
-   // // argument -s - random seed
-   cCommandLineArgs.AddArgument<UInt32>('s',
-					     "--seed",
-					     "Specify the random seed",
-					     u_r_seed);
    
    // ////////////////////////////////////////////////////////////////////////////////
    // // Build and initialise the simulator according to the command line arguments
@@ -132,7 +126,6 @@ int main(int argc, char** argv) {
       if( s_working_dir != "" ) {
 	      chdir( s_working_dir.c_str() );
 	   }
-      cSimulator.SetRandomSeed(u_r_seed);
       cSimulator.SetMonomorphicGenotype(f_monomorphic_genotype);
       cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);
       cSimulator.LoadExperiment();
