@@ -20,6 +20,7 @@ const string CONFIGURATION_RESULTS_FILENAME             = "results_filename";
 const string CONFIGURATION_ENDRUN_RESULTS_BASENAME      = "results_endrune_basename";
 
 const string CONFIGURATION_FITNESS_TO_USE               = "fitness_to_use";
+const string CONFIGURATION_FITNESS_AVERAGING            = "fitness_averaging";
 
 const string CONFIGURATION_STANDALONE_GENOTYPE          = "standalone_genotype";
 
@@ -27,6 +28,9 @@ const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
 const string FITNESS_TYPE_WEAK_OVERALL                  = "weak_overall";
 const string FITNESS_TYPE_STRONG_OVERALL                = "strong_overall";
+
+const string FITNESS_AVERAGING_ARITHMETIC               = "ari";
+const string FITNESS_AVERAGING_GEOMETRIC                = "geo";
 
 /****************************************/
 /****************************************/
@@ -57,6 +61,7 @@ CSimulator::CSimulator():
     m_sEndrunResultsBasename(""),
     m_sExperimentFilename(""),
     m_sFitnessToUse(""),
+    m_sFitnessAveraging(""),
     m_fMonomorphicGenotype(0.0)
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
@@ -101,7 +106,8 @@ void CSimulator::LoadExperiment(){
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sResultsFilename);
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_ENDRUN_RESULTS_BASENAME, m_sEndrunResultsBasename);
     
-    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_TO_USE, m_sFitnessToUse);
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_TO_USE,    m_sFitnessToUse);
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_AVERAGING, m_sFitnessAveraging);
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_STANDALONE_GENOTYPE, m_sStandaloneGenotypeString);
     istringstream standaloneGenotypeStream(m_sStandaloneGenotypeString);
@@ -341,14 +347,21 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     double invN = 1.0 / uTimestepsToEvaluate;
     
     for(UInt32 i = m_unTotalDurationTimesteps - uTimestepsToEvaluate; i < m_unTotalDurationTimesteps; ++i){
-
-        //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) * pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
-        Real currentFitness1 = ComputeFitnessWeak(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
-        int iFit1;
-        double f1 = std::frexp(currentFitness1,&iFit1);
-        mantissaFit1*=f1;
-        expFit1+=iFit1;
+        Real fFitness1ThisTimestep = ComputeFitnessWeak(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
         
+        if(m_sFitnessAveraging.compare(FITNESS_AVERAGING_ARITHMETIC) == 0){
+            //fFitness1 += (pow((Real)actionsOverTime[i].m_unTaskA,m_fBetaFitnessWeightFactor) * pow((Real)actionsOverTime[i].m_unTaskB,1.0 - m_fBetaFitnessWeightFactor));
+            fFitness1 += fFitness1ThisTimestep;
+        }
+        else if (m_sFitnessAveraging.compare(FITNESS_AVERAGING_GEOMETRIC) == 0){
+            if(abs(fFitness1ThisTimestep) < 0.001){
+                fFitness1ThisTimestep = 1.0;
+            }
+            int iFit1;
+            double f1 = std::frexp(fFitness1ThisTimestep,&iFit1);
+            mantissaFit1*=f1;
+            expFit1+=iFit1;
+        }
         
         Real fTotalActions    = ((Real)actionsOverTime[i].m_unTaskA + (Real)actionsOverTime[i].m_unTaskB);
         Real fProportionTaskA = 0.0;
@@ -361,23 +374,33 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         //LOGERR << " p1: " << fProportionTaskA;
         //LOGERR << " p2: " << fProportionTaskB;
         //LOGERR << " A: " << fTotalActions;
+        //LOGERR << std::endl;
         
         Real fFitness2ThisTimestep = ComputeFitnessStrong(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
         
-        int iFit2;
-        double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
-        mantissaFit2*=f2;
-        expFit2+=iFit2;
-        
-        //fFitness2 += fFitness2ThisTimestep;
-        
+        if(m_sFitnessAveraging.compare(FITNESS_AVERAGING_ARITHMETIC) == 0){
+            fFitness2 += fFitness2ThisTimestep;
+        }
+        else if (m_sFitnessAveraging.compare(FITNESS_AVERAGING_GEOMETRIC) == 0){
+            if(abs(fFitness2ThisTimestep) < 0.001){
+                fFitness2ThisTimestep = 1.0;
+            }
+            int iFit2;
+            double f2 = std::frexp(fFitness2ThisTimestep,&iFit2);
+            mantissaFit2*=f2;
+            expFit2+=iFit2;    
+        }
+
     }
     
-    //fFitness1 /= uTimestepsToEvaluate;
-    //fFitness2 /= uTimestepsToEvaluate;
-    fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
-    fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
-    
+    if(m_sFitnessAveraging.compare(FITNESS_AVERAGING_ARITHMETIC) == 0){
+        fFitness1 /= uTimestepsToEvaluate;
+        fFitness2 /= uTimestepsToEvaluate;
+    }
+    else if (m_sFitnessAveraging.compare(FITNESS_AVERAGING_GEOMETRIC) == 0){
+        fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
+        fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
+    }
     fFitness3 = ComputeFitness3OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     
     Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);

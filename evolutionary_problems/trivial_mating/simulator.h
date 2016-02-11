@@ -102,6 +102,7 @@ class CSimulator {
    // other variables
    Real m_fMonomorphicGenotype;
    string m_sFitnessToUse;
+   string m_sFitnessAveraging;
    
    string m_sStandaloneGenotypeString;
    CVector<Real> m_cStandaloneGenotype;
