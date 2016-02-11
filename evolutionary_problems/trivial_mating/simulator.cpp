@@ -413,8 +413,8 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         endRunFilename.fill( '0' );
         endRunFilename.str("");
         endRunFilename << m_sEndrunResultsBasename;
-        endRunFilename << "_thr";
-        endRunFilename << m_fMonomorphicGenotype;
+        //endRunFilename << "_thr";
+        //endRunFilename << m_fMonomorphicGenotype;
         endRunFilename << ".txt";
         
         outputResultsEndrun.open( endRunFilename.str().c_str(), ios::out );
