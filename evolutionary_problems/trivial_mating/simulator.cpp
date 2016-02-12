@@ -47,7 +47,8 @@ CSimulator::CSimulator():
     m_unSwitchingCost(0),
     m_fBetaFitnessWeightFactor(0.0),
     m_fSigmaFitness2(0.0),
-    m_fFitness(0.0),
+    m_fFitness3(0.0),
+    m_fFitness4(0.0),
     m_fStimulusTaskA(0.0),
     m_fStimulusTaskB(0.0),
     m_unOverallTotalActionsA(0),
@@ -168,7 +169,7 @@ Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
 /****************************************/
 /****************************************/
 
-Real CSimulator::ComputeFitness3OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep){
+void CSimulator::UpdateFitness3and4OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep){
     m_unOverallTotalActionsA = 0;
     m_unOverallTotalActionsB = 0;
     
@@ -177,7 +178,8 @@ Real CSimulator::ComputeFitness3OverallActions(UInt32 u_initial_timestep, UInt32
         m_unOverallTotalActionsB += actionsOverTime[i].m_unTaskB;
     }
     
-    return ComputeFitnessWeak(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
+    m_fFitness3 = ComputeFitnessWeak(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
+    m_fFitness4 = ComputeFitnessStrong(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
 }
 
 /****************************************/
@@ -336,7 +338,8 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
     Real fFitness1 = 0.0;
     Real fFitness2 = 0.0;
-    Real fFitness3 = 0.0;
+    m_fFitness3 = 0.0;
+    m_fFitness4 = 0.0;
     
     UInt32 uTimestepsToEvaluate = 90;
     
@@ -401,7 +404,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
         fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
     }
-    fFitness3 = ComputeFitness3OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
+    UpdateFitness3and4OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     
     Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);
     
@@ -421,11 +424,15 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         cResult.Insert(fFitness2);
     }
     if(m_sFitnessToUse.compare(FITNESS_TYPE_WEAK_OVERALL) == 0){
-        cResult.Insert(fFitness3);
+        cResult.Insert(m_fFitness3);
+    }
+    if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG_OVERALL) == 0){
+        cResult.Insert(m_fFitness4);
     }
     
     cResult.Insert(fFitness1);
     cResult.Insert(fFitness2);
+    // TODO: insert here the other two fitnesses but remember to update the xml file
     cResult.Insert(fSpecialization);
     cResult.Insert(m_fOverallProportionTaskA);
     cResult.Insert(m_fOverallProportionTaskB);
@@ -441,13 +448,15 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         endRunFilename << ".txt";
         
         outputResultsEndrun.open( endRunFilename.str().c_str(), ios::out );
-        outputResultsEndrun << "Fitness1\tFitness2\tSpec\tpA\tpB\tA" << std::endl;
-        outputResultsEndrun << fFitness1                << "\t";
-        outputResultsEndrun << fFitness2                << "\t";
-        outputResultsEndrun << fSpecialization          << "\t";
-        outputResultsEndrun << m_fOverallProportionTaskA  << "\t"; 
-        outputResultsEndrun << m_fOverallProportionTaskB  << "\t";
-        outputResultsEndrun << m_fOverallTotalActions     << std::endl;
+        outputResultsEndrun << "Fitness1\tFitness2\tFitness3\tFitness4\tSpec\tpA\tpB\tA" << std::endl;
+        outputResultsEndrun << fFitness1                    << "\t";
+        outputResultsEndrun << fFitness2                    << "\t";
+        outputResultsEndrun << m_fFitness3                  << "\t";
+        outputResultsEndrun << m_fFitness4                  << "\t";
+        outputResultsEndrun << fSpecialization              << "\t";
+        outputResultsEndrun << m_fOverallProportionTaskA    << "\t"; 
+        outputResultsEndrun << m_fOverallProportionTaskB    << "\t";
+        outputResultsEndrun << m_fOverallTotalActions       << std::endl;
         outputResultsEndrun.close();
     }
     

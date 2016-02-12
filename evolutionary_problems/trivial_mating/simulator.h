@@ -74,7 +74,8 @@ class CSimulator {
    Real m_fSigmaFitness2;
  
    // fitness of the experiment
-   Real m_fFitness;
+   Real m_fFitness3;
+   Real m_fFitness4;
  
    // Control parameters
    //Real m_fThresholdTaskA;
@@ -127,7 +128,7 @@ class CSimulator {
    virtual Real ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B);
    virtual Real ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B);
    virtual Real ComputeSpecializationUpToTimestep(UInt32 u_end_timestep);
-   virtual Real ComputeFitness3OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep);
+   virtual void UpdateFitness3and4OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep);
    virtual CObjectives ComputePerformanceInExperiment();
    
    virtual CRandom::CRNG* GetRNG(){return m_pcRNG;};
