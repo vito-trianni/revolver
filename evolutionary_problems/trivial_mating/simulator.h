@@ -60,6 +60,8 @@ class CSimulator {
    UInt32 m_unColonySize;
    // total simulation duration
    UInt32 m_unTotalDurationTimesteps;
+   // time steps to skip when computing fitness
+   UInt32 m_unTimestepsToSkipForFitness;
    // delta parameters for stimulus increase
    Real m_fDeltaStimulusIncreaseTaskA;
    Real m_fDeltaStimulusIncreaseTaskB;

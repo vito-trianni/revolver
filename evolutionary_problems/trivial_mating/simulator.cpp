@@ -4,6 +4,7 @@ const string CONFIGURATION_RANDOM_SEED                  = "random_seed";
 
 const string CONFIGURATION_COLONY_SIZE                  = "colony_size";
 const string CONFIGURATION_TOTAL_DURATION               = "total_duration_timesteps";
+const string CONFIGURATION_TIMESTEPS_TO_SKIP_FITNESS    = "timesteps_to_skip_for_fitness";
 
 const string CONFIGURATION_DELTA_STIMULUS_INCREASE_A    = "delta_stimulus_increase_A";
 const string CONFIGURATION_DELTA_STIMULUS_INCREASE_B    = "delta_stimulus_increase_B";
@@ -40,6 +41,7 @@ CSimulator::CSimulator():
     m_unTrialNumber(0),
     m_unColonySize(0),
     m_unTotalDurationTimesteps(0),
+    m_unTimestepsToSkipForFitness(0),
     m_fDeltaStimulusIncreaseTaskA(0.0),
     m_fDeltaStimulusIncreaseTaskB(0.0),
     m_fAlphaStimulusDecreaseTaskA(0.0),
@@ -92,6 +94,7 @@ void CSimulator::LoadExperiment(){
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_COLONY_SIZE, m_unColonySize );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_TOTAL_DURATION, m_unTotalDurationTimesteps );
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_TIMESTEPS_TO_SKIP_FITNESS, m_unTimestepsToSkipForFitness );
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_DELTA_STIMULUS_INCREASE_A, m_fDeltaStimulusIncreaseTaskA );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_DELTA_STIMULUS_INCREASE_B, m_fDeltaStimulusIncreaseTaskB );
@@ -163,7 +166,10 @@ Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
         fProportionTaskA = (Real)u_actions_A / fTotalActions;
         fProportionTaskB = (Real)u_actions_B / fTotalActions;
     }
-    return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    //return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    
+    // The following is what Duarte actually did in her code
+    return log(fTotalActions) * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
 }
 
 /****************************************/
@@ -341,7 +347,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     m_fFitness3 = 0.0;
     m_fFitness4 = 0.0;
     
-    UInt32 uTimestepsToEvaluate = 90;
+    UInt32 uTimestepsToEvaluate = m_unTotalDurationTimesteps - m_unTimestepsToSkipForFitness;
     
     double mantissaFit1 = 1.0;
     long long expFit1 = 0;
@@ -404,8 +410,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         fFitness1 = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
         fFitness2 = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
     }
-    UpdateFitness3and4OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     
+    
+    UpdateFitness3and4OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);
     
     // LOGERR << "Fit1: " << fFitness1;
