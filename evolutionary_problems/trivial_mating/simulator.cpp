@@ -166,10 +166,10 @@ Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
         fProportionTaskA = (Real)u_actions_A / fTotalActions;
         fProportionTaskB = (Real)u_actions_B / fTotalActions;
     }
-    //return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
     
+    return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
     // The following is what Duarte actually did in her code
-    return log(fTotalActions) * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    // return log(fTotalActions) * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
 }
 
 /****************************************/
