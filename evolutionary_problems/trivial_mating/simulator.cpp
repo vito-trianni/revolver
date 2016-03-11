@@ -29,6 +29,7 @@ const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
 const string FITNESS_TYPE_WEAK_OVERALL                  = "weak_overall";
 const string FITNESS_TYPE_STRONG_OVERALL                = "strong_overall";
+const string FITNESS_TYPE_STRONG_OVERALL_LOG_ACTS       = "strong_overall_log_acts";
 
 const string FITNESS_AVERAGING_ARITHMETIC               = "ari";
 const string FITNESS_AVERAGING_GEOMETRIC                = "geo";
@@ -49,8 +50,9 @@ CSimulator::CSimulator():
     m_unSwitchingCost(0),
     m_fBetaFitnessWeightFactor(0.0),
     m_fSigmaFitness2(0.0),
-    m_fFitness3(0.0),
-    m_fFitness4(0.0),
+    m_fFitnessWeakOverall(0.0),
+    m_fFitnessStrongOverall(0.0),
+    m_fFitnessStrongOverallLogActs(0.0),
     m_fStimulusTaskA(0.0),
     m_fStimulusTaskB(0.0),
     m_unOverallTotalActionsA(0),
@@ -158,7 +160,7 @@ Real CSimulator::ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B){
 /****************************************/
 /****************************************/
 
-Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
+Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B, bool logActions){
     Real fTotalActions    = ((Real)u_actions_A + (Real)u_actions_B);
     Real fProportionTaskA = 0.0;
     Real fProportionTaskB = 0.0;
@@ -166,10 +168,16 @@ Real CSimulator::ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B){
         fProportionTaskA = (Real)u_actions_A / fTotalActions;
         fProportionTaskB = (Real)u_actions_B / fTotalActions;
     }
-    
-    return fTotalActions * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
-    // The following is what Duarte actually did in her code
-    // return log(fTotalActions) * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    Real fFitness = 0.0;
+    //LOGERR << "Total actions " << fTotalActions << std::endl;
+    if(!logActions){
+        fFitness = fTotalActions        * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    }
+    else {
+        // The following is what Duarte actually did in her code
+        fFitness = log(fTotalActions)   * exp(- ((fProportionTaskA - m_fBetaFitnessWeightFactor) * (fProportionTaskA - m_fBetaFitnessWeightFactor) / (2.0 * m_fSigmaFitness2 * m_fSigmaFitness2 )));
+    }
+    return fFitness;
 }
 
 /****************************************/
@@ -184,8 +192,10 @@ void CSimulator::UpdateFitness3and4OverallActions(UInt32 u_initial_timestep, UIn
         m_unOverallTotalActionsB += actionsOverTime[i].m_unTaskB;
     }
     
-    m_fFitness3 = ComputeFitnessWeak(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
-    m_fFitness4 = ComputeFitnessStrong(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
+    //LOGERR << "Computing overall fitness" << std::endl;
+    m_fFitnessWeakOverall = ComputeFitnessWeak(m_unOverallTotalActionsA, m_unOverallTotalActionsB);
+    m_fFitnessStrongOverall = ComputeFitnessStrong(m_unOverallTotalActionsA, m_unOverallTotalActionsB, false);
+    m_fFitnessStrongOverallLogActs = ComputeFitnessStrong(m_unOverallTotalActionsA, m_unOverallTotalActionsB, true);
 }
 
 /****************************************/
@@ -238,7 +248,7 @@ void CSimulator::WriteResults(UInt32 u_timestep){
     if(m_bWriteResults){
   
         Real fFitness1 = ComputeFitnessWeak(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB);
-        Real fFitness2 = ComputeFitnessStrong(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB);
+        Real fFitness2 = ComputeFitnessStrong(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB, false);
         Real fSpecialization = ComputeSpecializationUpToTimestep(u_timestep);
         
         outputResults << u_timestep                             << "\t";
@@ -344,8 +354,9 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     CObjectives cResult;
     Real fFitness1 = 0.0;
     Real fFitness2 = 0.0;
-    m_fFitness3 = 0.0;
-    m_fFitness4 = 0.0;
+    m_fFitnessWeakOverall = 0.0;
+    m_fFitnessStrongOverall = 0.0;
+    m_fFitnessStrongOverallLogActs = 0.0;
     
     UInt32 uTimestepsToEvaluate = m_unTotalDurationTimesteps - m_unTimestepsToSkipForFitness;
     
@@ -385,7 +396,7 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         //LOGERR << " A: " << fTotalActions;
         //LOGERR << std::endl;
         
-        Real fFitness2ThisTimestep = ComputeFitnessStrong(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB);
+        Real fFitness2ThisTimestep = ComputeFitnessStrong(actionsOverTime[i].m_unTaskA,actionsOverTime[i].m_unTaskB, false);
         
         if(m_sFitnessAveraging.compare(FITNESS_AVERAGING_ARITHMETIC) == 0){
             fFitness2 += fFitness2ThisTimestep;
@@ -431,10 +442,13 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         cResult.Insert(fFitness2);
     }
     if(m_sFitnessToUse.compare(FITNESS_TYPE_WEAK_OVERALL) == 0){
-        cResult.Insert(m_fFitness3);
+        cResult.Insert(m_fFitnessWeakOverall);
     }
     if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG_OVERALL) == 0){
-        cResult.Insert(m_fFitness4);
+        cResult.Insert(m_fFitnessStrongOverall);
+    }
+    if(m_sFitnessToUse.compare(FITNESS_TYPE_STRONG_OVERALL_LOG_ACTS) == 0){
+        cResult.Insert(m_fFitnessStrongOverallLogActs);
     }
     
     cResult.Insert(fFitness1);
@@ -455,11 +469,12 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         endRunFilename << ".txt";
         
         outputResultsEndrun.open( endRunFilename.str().c_str(), ios::out );
-        outputResultsEndrun << "Fitness1\tFitness2\tFitness3\tFitness4\tSpec\tpA\tpB\tA" << std::endl;
+        outputResultsEndrun << "FitnessWeak\tFitnessStrong\tFitnessWeakOverall\tFitnessStrongOverall\tFitnessStrongOverallLogActs\tSpec\tpA\tpB\tA" << std::endl;
         outputResultsEndrun << fFitness1                    << "\t";
         outputResultsEndrun << fFitness2                    << "\t";
-        outputResultsEndrun << m_fFitness3                  << "\t";
-        outputResultsEndrun << m_fFitness4                  << "\t";
+        outputResultsEndrun << m_fFitnessWeakOverall                  << "\t";
+        outputResultsEndrun << m_fFitnessStrongOverall                  << "\t";
+        outputResultsEndrun << m_fFitnessStrongOverallLogActs                  << "\t";
         outputResultsEndrun << fSpecialization              << "\t";
         outputResultsEndrun << m_fOverallProportionTaskA    << "\t"; 
         outputResultsEndrun << m_fOverallProportionTaskB    << "\t";

@@ -76,8 +76,9 @@ class CSimulator {
    Real m_fSigmaFitness2;
  
    // fitness of the experiment
-   Real m_fFitness3;
-   Real m_fFitness4;
+   Real m_fFitnessWeakOverall;
+   Real m_fFitnessStrongOverall;
+   Real m_fFitnessStrongOverallLogActs;
  
    // Control parameters
    //Real m_fThresholdTaskA;
@@ -128,7 +129,7 @@ class CSimulator {
    virtual void Execute();
    
    virtual Real ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B);
-   virtual Real ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B);
+   virtual Real ComputeFitnessStrong(UInt32 u_actions_A, UInt32 u_actions_B, bool logActions);
    virtual Real ComputeSpecializationUpToTimestep(UInt32 u_end_timestep);
    virtual void UpdateFitness3and4OverallActions(UInt32 u_initial_timestep, UInt32 u_end_timestep);
    virtual CObjectives ComputePerformanceInExperiment();
