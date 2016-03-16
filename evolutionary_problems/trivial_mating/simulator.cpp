@@ -17,6 +17,7 @@ const string CONFIGURATION_BETA_FITNESS_WEIGHT_FACTOR   = "beta_fitness_weight_f
 const string CONFIGURATION_SIGMA_FITNESS2               = "sigma_fitness2";
 
 const string CONFIGURATION_WRITE_RESULTS                = "write_results";
+const string CONFIGURATION_WRITE_RESULTS_TIME           = "write_results_time";
 const string CONFIGURATION_RESULTS_FILENAME             = "results_filename";
 const string CONFIGURATION_ENDRUN_RESULTS_BASENAME      = "results_endrune_basename";
 
@@ -62,6 +63,7 @@ CSimulator::CSimulator():
     m_fOverallTotalActions(0.0),
     m_fSpecialization(0.0),
     m_bWriteResults(false),
+    m_bWriteResultsTime(false),
     m_sResultsFilename(""),
     m_sEndrunResultsBasename(""),
     m_sExperimentFilename(""),
@@ -109,6 +111,7 @@ void CSimulator::LoadExperiment(){
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_SIGMA_FITNESS2, m_fSigmaFitness2 );
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_WRITE_RESULTS, m_bWriteResults );
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_WRITE_RESULTS_TIME, m_bWriteResultsTime );
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RESULTS_FILENAME, m_sResultsFilename);
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_ENDRUN_RESULTS_BASENAME, m_sEndrunResultsBasename);
     
@@ -122,7 +125,7 @@ void CSimulator::LoadExperiment(){
     //standaloneGenotypeStream << m_sStandaloneGenotypeString;
     standaloneGenotypeStream >> m_cStandaloneGenotype;
     
-    if(m_bWriteResults){
+    if(m_bWriteResultsTime){
         ostringstream filename;
         filename.fill( '0' );
         filename.str("");
@@ -245,7 +248,7 @@ Real CSimulator::ComputeSpecializationUpToTimestep(UInt32 u_end_timestep){
 
 void CSimulator::WriteResults(UInt32 u_timestep){
     
-    if(m_bWriteResults){
+    if(m_bWriteResultsTime){
   
         Real fFitness1 = ComputeFitnessWeak(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB);
         Real fFitness2 = ComputeFitnessStrong(actionsOverTime[u_timestep].m_unTaskA, actionsOverTime[u_timestep].m_unTaskB, false);

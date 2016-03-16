@@ -98,6 +98,7 @@ class CSimulator {
    // filenames and directories
    string m_sExperimentFilename;
    bool m_bWriteResults;
+   bool m_bWriteResultsTime;
    string m_sResultsFilename;
    string m_sEndrunResultsBasename;
    ofstream outputResults;
