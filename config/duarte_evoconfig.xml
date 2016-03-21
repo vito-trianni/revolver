@@ -5,7 +5,7 @@
 
   colony_size                   = "100"
   total_duration_timesteps      = "100"
-  timesteps_to_skip_for_fitness = "10"
+  timesteps_to_skip_for_fitness = "0"
   
   delta_stimulus_increase_A     = "1.0"
   delta_stimulus_increase_B     = "1.0"
@@ -18,12 +18,12 @@
   fitness_to_use                = "strong_overall_log_acts"
   fitness_averaging             = "geo"
   
-  write_results                 = "false"
+  write_results                 = "true"
   write_results_time            = "false"
   results_filename              = "/home/ubuntu/workspace/results.txt"
   results_endrune_basename      = "/home/ubuntu/workspace/endrun"
   
-  standalone_genotype           = "4(10.0,20.0,30.0,40.0)"
+  standalone_genotype           = "4(10.0,10.0,10.0,10.0)"
   
   >
   
