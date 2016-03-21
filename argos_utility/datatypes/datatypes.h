@@ -33,11 +33,7 @@ namespace argos {
     * Real is defined either as <tt>float</tt> or <tt>double</tt>, depending on the flags set
     * for compilation.
     */
-#ifdef ARGOS_USE_DOUBLE
    typedef double Real;
-#else
-   typedef float Real;
-#endif
 
    /**
     * 8-bit signed integer.

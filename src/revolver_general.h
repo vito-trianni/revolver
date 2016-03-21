@@ -26,13 +26,6 @@
 
 //#include <argos3/core/config.h>
 
-#ifdef ARGOS_USE_DOUBLE
 #define MPI_ARGOSREAL MPI_DOUBLE
-#else
-#define MPI_ARGOSREAL MPI_FLOAT
-#endif
-
-
-
 
 #endif

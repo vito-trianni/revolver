@@ -530,27 +530,16 @@ namespace argos {
    /****************************************/
 
 #undef ARGOS_SINCOS
-#ifdef ARGOS_USE_DOUBLE
-#  ifdef _GNU_SOURCE
-#    define ARGOS_SINCOS ::sincos
-#  endif
-#  define ARGOS_SIN    ::sin
-#  define ARGOS_ASIN   ::asin
-#  define ARGOS_COS    ::cos
-#  define ARGOS_ACOS   ::acos
-#  define ARGOS_TAN    ::tan
-#  define ARGOS_ATAN2  ::atan2
-#else
-#  ifdef _GNU_SOURCE
-#    define ARGOS_SINCOS ::sincosf
-#  endif
-#  define ARGOS_SIN    ::sinf
-#  define ARGOS_ASIN   ::asinf
-#  define ARGOS_COS    ::cosf
-#  define ARGOS_ACOS   ::acosf
-#  define ARGOS_TAN    ::tanf
-#  define ARGOS_ATAN2  ::atan2f
+#ifdef _GNU_SOURCE
+#  define ARGOS_SINCOS ::sincos
 #endif
+#define ARGOS_SIN    ::sin
+#define ARGOS_ASIN   ::asin
+#define ARGOS_COS    ::cos
+#define ARGOS_ACOS   ::acos
+#define ARGOS_TAN    ::tan
+#define ARGOS_ATAN2  ::atan2
+
 
 #ifdef ARGOS_SINCOS
    /** 
