@@ -376,11 +376,15 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         
         fFitnessWeakAri += fFitnessWeakThisTimestep;
         
-        if(abs(fFitnessWeakThisTimestep) < 0.001){
-            fFitnessWeakThisTimestep = 1.0;
-        }
+        // Method to deal with zeros in geometric mean: convert to 0.0 (method 3 in http://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation)
+        // if(abs(fFitnessWeakThisTimestep) < 0.001){
+        //     fFitnessWeakThisTimestep = 1.0;
+        // }
+        
         int iFit1;
-        double f1 = std::frexp(fFitnessWeakThisTimestep,&iFit1);
+        //double f1 = std::frexp(fFitnessWeakThisTimestep,&iFit1);
+        // Method to deal with zeros in geometric mean: add 1.0 always and remove 1.0 from results (method 1 in http://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation)
+        double f1 = std::frexp(fFitnessWeakThisTimestep + 1.0,&iFit1);
         mantissaFit1*=f1;
         expFit1+=iFit1;
     
@@ -397,11 +401,14 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
         
         fFitnessStrongAri += fFitnessStrongThisTimestep;
         
-        if(abs(fFitnessStrongThisTimestep) < 0.001){
-            fFitnessStrongThisTimestep = 1.0;
-        }
+        // Method to deal with zeros in geometric mean: convert to 0.0 (method 3 in http://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation)
+        // if(abs(fFitnessStrongThisTimestep) < 0.001){
+        //     fFitnessStrongThisTimestep = 1.0;
+        // }
         int iFit2;
-        double f2 = std::frexp(fFitnessStrongThisTimestep,&iFit2);
+        //double f2 = std::frexp(fFitnessStrongThisTimestep,&iFit2);
+        // Method to deal with zeros in geometric mean: add 1.0 always and remove 1.0 from results (method 1 in http://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation)
+        double f2 = std::frexp(fFitnessStrongThisTimestep + 1.0,&iFit2);
         mantissaFit2*=f2;
         expFit2+=iFit2;    
     
@@ -411,9 +418,12 @@ CObjectives CSimulator::ComputePerformanceInExperiment(){
     fFitnessWeakAri /= uTimestepsToEvaluate;
     fFitnessStrongAri /= uTimestepsToEvaluate;
 
-
     fFitnessWeakGeo = std::pow( std::numeric_limits<double>::radix,expFit1 * invN) * std::pow(mantissaFit1,invN);
     fFitnessStrongGeo = std::pow( std::numeric_limits<double>::radix,expFit2 * invN) * std::pow(mantissaFit2,invN);
+    
+    // Method to deal with zeros in geometric mean: add 1.0 always and remove 1.0 from results (method 1 in http://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation)
+    fFitnessWeakGeo -= 1.0;
+    fFitnessStrongGeo -= 1.0;
 
     UpdateFitness3and4OverallActions(m_unTotalDurationTimesteps - uTimestepsToEvaluate, m_unTotalDurationTimesteps);
     Real fSpecialization = ComputeSpecializationUpToTimestep(m_unTotalDurationTimesteps);
