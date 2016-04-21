@@ -25,6 +25,7 @@ const string CONFIGURATION_FITNESS_TO_USE               = "fitness_to_use";
 const string CONFIGURATION_FITNESS_AVERAGING            = "fitness_averaging";
 
 const string CONFIGURATION_STANDALONE_GENOTYPE          = "standalone_genotype";
+const string CONFIGURATION_RECOMBINATION_FACTOR         = "recombination_factor";
 
 const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
@@ -69,7 +70,7 @@ CSimulator::CSimulator():
     m_sExperimentFilename(""),
     m_sFitnessToUse(""),
     m_sFitnessAveraging(""),
-    m_fMonomorphicGenotype(0.0)
+    m_fRecombinationFactor(0.0)
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
       CRandom::CreateCategory(  "simulator", 1 );
@@ -119,6 +120,7 @@ void CSimulator::LoadExperiment(){
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_AVERAGING, m_sFitnessAveraging);
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_STANDALONE_GENOTYPE, m_sStandaloneGenotypeString);
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RECOMBINATION_FACTOR, m_fRecombinationFactor);
     istringstream standaloneGenotypeStream(m_sStandaloneGenotypeString);
     //standaloneGenotypeStream.fill( '0' );
     //standaloneGenotypeStream.str("");
@@ -528,10 +530,10 @@ void CSimulator::Destroy(){
 /****************************************/
 
 
-CEvaluationConfig CSimulator::GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, Real f_recombination_factor, UInt32 un_num_samples){
+CEvaluationConfig CSimulator::GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, UInt32 un_num_samples){
 
    CEvaluationConfig cSingleTeamEC( 1, un_team_size );
-   cSingleTeamEC.SetRecombinationFactor(f_recombination_factor);
+   cSingleTeamEC.SetRecombinationFactor(m_fRecombinationFactor);
    cSingleTeamEC.SetIndividualIndex(0); 
    
    UInt32 m_punEvaluationSeeds[un_num_samples];

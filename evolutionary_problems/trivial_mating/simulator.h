@@ -105,7 +105,7 @@ class CSimulator {
    ofstream outputResultsEndrun;
    
    // other variables
-   Real m_fMonomorphicGenotype;
+   Real m_fRecombinationFactor;
    string m_sFitnessToUse;
    string m_sFitnessAveraging;
    
@@ -123,7 +123,6 @@ class CSimulator {
    virtual void LoadExperiment();
    
    virtual void SetControlParameters(CEvaluationConfig* e_config);
-   inline void SetMonomorphicGenotype(Real f_monomorphic_genotype){m_fMonomorphicGenotype = f_monomorphic_genotype;};
    
    virtual void WriteResults(UInt32 u_timestep);
    
@@ -140,7 +139,7 @@ class CSimulator {
    virtual void Reset();
    virtual void Destroy();
    
-   virtual CEvaluationConfig GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, Real f_recombination_factor, UInt32 un_num_samples);
+   virtual CEvaluationConfig GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, UInt32 un_num_samples);
 
 };
 

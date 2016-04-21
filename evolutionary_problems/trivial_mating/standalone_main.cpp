@@ -66,16 +66,15 @@ UInt32  un_num_teams = 1;
 UInt32  un_team_size = 2;
 UInt32  un_num_samples = 1;
 UInt32  un_num_objectives = 1;
-Real f_recombination_factor = 0.5; 
 
 CRange<Real> m_cGenotypeValueRange = CRange<Real>(0.0,100.0);
 
-Real f_monomorphic_genotype = 10.0;
+// Real f_monomorphic_genotype = 10.0;
 
-UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,    // Mother A threshold
-                                  f_monomorphic_genotype,    // Mother B threshold
-                                  f_monomorphic_genotype,    // Father A threshold
-                                  f_monomorphic_genotype } ; // Father B threshold
+// UInt32 vun_complete_genotype[4] = {f_monomorphic_genotype,    // Mother A threshold
+//                                   f_monomorphic_genotype,    // Mother B threshold
+//                                   f_monomorphic_genotype,    // Father A threshold
+//                                   f_monomorphic_genotype } ; // Father B threshold
                                    
 // UInt32 vun_complete_genotype[4] = {0.0,     // Mother A threshold
 //                                   11.0,    // Mother B threshold
@@ -126,7 +125,7 @@ int main(int argc, char** argv) {
       if( s_working_dir != "" ) {
 	      chdir( s_working_dir.c_str() );
 	   }
-      cSimulator.SetMonomorphicGenotype(f_monomorphic_genotype);
+      //cSimulator.SetMonomorphicGenotype(f_monomorphic_genotype);
       cSimulator.SetExperimentFileName(invalid_xml_configuration_filename);
       cSimulator.LoadExperiment();
    }
@@ -144,7 +143,7 @@ int main(int argc, char** argv) {
    // // Start individual evaluation
    // ////////////////////////////////////////////////////////////////////////////////
 
-   CEvaluationConfig evaluation_config = cSimulator.GenerateFoundingTeam(un_team_size, un_genotype_length, m_cGenotypeValueRange, f_recombination_factor, un_num_samples);
+   CEvaluationConfig evaluation_config = cSimulator.GenerateFoundingTeam(un_team_size, un_genotype_length, m_cGenotypeValueRange, un_num_samples);
    
    // start evaluation
    for( UInt32 i = 0; i < un_num_samples; ++i ) {
