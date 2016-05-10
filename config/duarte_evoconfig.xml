@@ -29,5 +29,19 @@
   >
   
 </simulator>
+
+<custom-colony
+
+  frequency_mutant_A            = "0.0"
+  frequency_mutant_B            = "0.0"
+  resident_A_gene               = "0.0"
+  resident_B_gene               = "0.0"
+  mutant_B_gene                 = "0.0"
+  mutant_A_gene                 = "0.0"
+  
+  >
+  
+</custom-colony>
+
 </simulator-configuration>
 

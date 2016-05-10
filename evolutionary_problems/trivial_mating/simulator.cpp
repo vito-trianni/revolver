@@ -147,6 +147,7 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
         CGenotype cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
         cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
         cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];
+        //LOG << "Created agent with A: " << cNewAgent.m_fThresholdTaskA << " and B " << cNewAgent.m_fThresholdTaskB << std::endl;
         cNewAgent.m_unCurrentTask = 0; // IDLE
         cNewAgent.m_unSwitchingTimestep = 0;
         cNewAgent.m_unNonSwitchingTaskCounter = 0;

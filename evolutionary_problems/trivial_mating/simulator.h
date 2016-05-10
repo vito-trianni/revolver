@@ -15,7 +15,7 @@ using namespace argos;
 
 // the class that contains the code of the numerical simulation. It performs: mating, simulation, and fitness computation
 class CSimulator {
- protected:
+ public:
    // agent structure
    struct Agent {
     // Control parameters
@@ -33,6 +33,8 @@ class CSimulator {
     // A counter that counts how many total actions the agent has done
     UInt32 m_unTotalActionsPerAgent;
    };
+   
+ protected:
    
    struct Actions {
      UInt32 m_unIdle;
@@ -116,7 +118,11 @@ class CSimulator {
    CSimulator();
    ~CSimulator();
    
+   inline UInt32 GetColonySize(){return m_unColonySize;};
+   inline void AddAgentToColony(Agent& agent){ agents.push_back(agent); };
+   
    inline void SetExperimentFileName( const string& filename ) { m_sExperimentFilename = filename; };
+   inline void SetRandomSeed(){m_unRandomSeed = m_pcRNG->Uniform(CRange<UInt32>(0,INT_MAX));m_pcRNG->SetSeed(m_unRandomSeed); m_pcRNG->Reset();};
    inline void SetRandomSeed(const UInt32 random_seed) {m_unRandomSeed = random_seed; m_pcRNG->SetSeed(random_seed); m_pcRNG->Reset();};
    inline void SetTrialNumber(const UInt32 trial_number) {m_unTrialNumber = trial_number;};
    

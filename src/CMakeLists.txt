@@ -59,6 +59,17 @@ add_executable(standaloneTrivialMating ${standaloneTrivialMating_IMPLEMENTATIONS
   utility
 )
 
+set(customColony_IMPLEMENTATIONS
+  ../evolutionary_problems/trivial_mating/custom_colony_main.cpp
+  ../evolutionary_problems/trivial_mating/simulator.cpp
+)
+
+add_executable(customColony ${customColony_IMPLEMENTATIONS})
+  target_link_libraries(customColony
+  argos_utility
+  utility
+)
+
 set(resultsParser_IMPLEMENTATIONS
   ../evolutionary_problems/trivial_mating/results_parser.cpp
   ../evolutionary_problems/trivial_mating/simulator.cpp
