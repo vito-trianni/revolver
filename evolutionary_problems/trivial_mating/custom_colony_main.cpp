@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
       UInt32 u_count_mutant_A = 0;
       UInt32 u_count_mutant_B = 0;
       
-      LOG << "Mut A " << u_num_agents_mutant_A << " while B " << u_num_agents_mutant_B << std::endl;
+      //LOG << "Mut A " << u_num_agents_mutant_A << " while B " << u_num_agents_mutant_B << std::endl;
       
       for( UInt32 i = 0; i < cSimulator.GetColonySize(); ++i){
          CSimulator::Agent cNewAgent = {};
