@@ -167,38 +167,70 @@ int main(int argc, char** argv) {
       
       // set the controller parameters
       
+      Real f_frequency_monomorphic = (1.0 - f_frequency_mutant_A - f_frequency_mutant_B) / 2.0;
+      
       UInt32 u_num_agents_mutant_A = (UInt32)Round(f_frequency_mutant_A * (Real)cSimulator.GetColonySize());
       UInt32 u_num_agents_mutant_B = (UInt32)Round(f_frequency_mutant_B * (Real)cSimulator.GetColonySize());
+      UInt32 u_num_monomorphic = (UInt32)Round(f_frequency_monomorphic * (Real)cSimulator.GetColonySize());
       UInt32 u_count_mutant_A = 0;
       UInt32 u_count_mutant_B = 0;
       
-      //LOG << "Mut A " << u_num_agents_mutant_A << " while B " << u_num_agents_mutant_B << std::endl;
+      UInt32 u_count_agents = 0;
       
-      for( UInt32 i = 0; i < cSimulator.GetColonySize(); ++i){
+      for ( UInt32 i = 0; i < u_num_agents_mutant_A; ++i){
          CSimulator::Agent cNewAgent = {};
-         if(u_count_mutant_A < u_num_agents_mutant_A){
-            cNewAgent.m_fThresholdTaskA = f_mutant_A_gene;
-            u_count_mutant_A++;
-         }
-         else{
-            cNewAgent.m_fThresholdTaskA = f_resident_A_gene;
-         }
-         if(u_count_mutant_B < u_num_agents_mutant_B){
-            cNewAgent.m_fThresholdTaskB = f_mutant_B_gene;
-            u_count_mutant_B++;
-         }
-         else{
-            cNewAgent.m_fThresholdTaskB = f_resident_B_gene;
-         }
-         
-         //LOG << "Created agent with A: " << cNewAgent.m_fThresholdTaskA << " and B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         cNewAgent.m_fThresholdTaskA = f_mutant_A_gene;
+         cNewAgent.m_fThresholdTaskB = f_resident_B_gene;
          cNewAgent.m_unCurrentTask = 0; // IDLE
          cNewAgent.m_unSwitchingTimestep = 0;
          cNewAgent.m_unNonSwitchingTaskCounter = 0;
          cNewAgent.m_unTotalActionsPerAgent = 0;
          cSimulator.AddAgentToColony(cNewAgent);
+         u_count_agents++;
+         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
       }
       
+      for ( UInt32 i = 0; i < u_num_agents_mutant_B; ++i){
+         CSimulator::Agent cNewAgent = {};
+         cNewAgent.m_fThresholdTaskA = f_resident_A_gene;
+         cNewAgent.m_fThresholdTaskB = f_mutant_B_gene;
+         cNewAgent.m_unCurrentTask = 0; // IDLE
+         cNewAgent.m_unSwitchingTimestep = 0;
+         cNewAgent.m_unNonSwitchingTaskCounter = 0;
+         cNewAgent.m_unTotalActionsPerAgent = 0;
+         cSimulator.AddAgentToColony(cNewAgent);
+         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         u_count_agents++;
+      }
+      
+      for ( UInt32 i = 0; i < u_num_monomorphic; ++i){
+         CSimulator::Agent cNewAgent = {};
+         cNewAgent.m_fThresholdTaskA = f_resident_A_gene;
+         cNewAgent.m_fThresholdTaskB = f_resident_B_gene;
+         cNewAgent.m_unCurrentTask = 0; // IDLE
+         cNewAgent.m_unSwitchingTimestep = 0;
+         cNewAgent.m_unNonSwitchingTaskCounter = 0;
+         cNewAgent.m_unTotalActionsPerAgent = 0;
+         cSimulator.AddAgentToColony(cNewAgent);
+         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         u_count_agents++;
+      }
+      
+      for ( UInt32 i = 0; i < u_num_monomorphic; ++i){
+         CSimulator::Agent cNewAgent = {};
+         cNewAgent.m_fThresholdTaskA = f_mutant_A_gene;
+         cNewAgent.m_fThresholdTaskB = f_mutant_B_gene;
+         cNewAgent.m_unCurrentTask = 0; // IDLE
+         cNewAgent.m_unSwitchingTimestep = 0;
+         cNewAgent.m_unNonSwitchingTaskCounter = 0;
+         cNewAgent.m_unTotalActionsPerAgent = 0;
+         cSimulator.AddAgentToColony(cNewAgent);
+         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         u_count_agents++;
+      }
+      
+      //LOG << "Added " << u_count_agents << " agents in total." << std::endl;
+
       // run the simulation
       cSimulator.Execute();
       
