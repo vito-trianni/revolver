@@ -143,7 +143,6 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
         cNewAgent.m_unTotalActionsPerAgent = 0;
         agents.push_back(cNewAgent);
         
-        LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
     }
 }
 
