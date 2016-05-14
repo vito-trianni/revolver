@@ -24,9 +24,6 @@ const string CONFIGURATION_ENDRUN_RESULTS_BASENAME      = "results_endrune_basen
 const string CONFIGURATION_FITNESS_TO_USE               = "fitness_to_use";
 const string CONFIGURATION_FITNESS_AVERAGING            = "fitness_averaging";
 
-const string CONFIGURATION_STANDALONE_GENOTYPE          = "standalone_genotype";
-const string CONFIGURATION_RECOMBINATION_FACTOR         = "recombination_factor";
-
 const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
 const string FITNESS_TYPE_WEAK_OVERALL                  = "weak_overall";
@@ -69,8 +66,7 @@ CSimulator::CSimulator():
     m_sEndrunResultsBasename(""),
     m_sExperimentFilename(""),
     m_sFitnessToUse(""),
-    m_sFitnessAveraging(""),
-    m_fRecombinationFactor(0.0)
+    m_sFitnessAveraging("")
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
       CRandom::CreateCategory(  "simulator", 1 );
@@ -118,15 +114,7 @@ void CSimulator::LoadExperiment(){
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_TO_USE,    m_sFitnessToUse);
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_AVERAGING, m_sFitnessAveraging);
-    
-    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_STANDALONE_GENOTYPE, m_sStandaloneGenotypeString);
-    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RECOMBINATION_FACTOR, m_fRecombinationFactor);
-    istringstream standaloneGenotypeStream(m_sStandaloneGenotypeString);
-    //standaloneGenotypeStream.fill( '0' );
-    //standaloneGenotypeStream.str("");
-    //standaloneGenotypeStream << m_sStandaloneGenotypeString;
-    standaloneGenotypeStream >> m_cStandaloneGenotype;
-    
+
     if(m_bWriteResultsTime){
         ostringstream filename;
         filename.fill( '0' );
@@ -154,6 +142,8 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
         cNewAgent.m_unNonSwitchingTaskCounter = 0;
         cNewAgent.m_unTotalActionsPerAgent = 0;
         agents.push_back(cNewAgent);
+        
+        LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
     }
 }
 
@@ -587,52 +577,6 @@ void CSimulator::Reset(){
 
 void CSimulator::Destroy(){
     outputResults.close();
-}
-
-/****************************************/
-/****************************************/
-
-
-CEvaluationConfig CSimulator::GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, UInt32 un_num_samples){
-
-   CEvaluationConfig cSingleTeamEC( 1, un_team_size );
-   cSingleTeamEC.SetRecombinationFactor(m_fRecombinationFactor);
-   cSingleTeamEC.SetIndividualIndex(0); 
-   
-   UInt32 m_punEvaluationSeeds[un_num_samples];
-   
-   for( UInt32 i = 0; i < un_num_samples; ++i ) {
-      m_punEvaluationSeeds[i] = m_pcRNG->Uniform(CRange<UInt32>(0,INT_MAX));
-   }
-   
-   cSingleTeamEC.SetSampleSeeds(CVector<UInt32>(un_num_samples,m_punEvaluationSeeds));
-   
-   UInt32 uGenotypeCounter = 0;
-      
-   // build a fake team
-   TTeam team;
-   
-   for(UInt32 j = 0; j < un_team_size; ++j){
-      
-      Real pf_control_parameters[un_genotype_length];
-      for(UInt32 k = 0 ; k < un_genotype_length ; ++k){
-         pf_control_parameters[k] = m_cStandaloneGenotype[uGenotypeCounter];
-         uGenotypeCounter++;
-      }
-      CGenotype cTeamMemberGenotype(un_genotype_length,pf_control_parameters,m_cGenotypeValueRange);
-      cTeamMemberGenotype.SetID(j); 
-      cTeamMemberGenotype.SetRNG(m_pcRNG);
-      
-      cSingleTeamEC.InsertControlParameters(j,cTeamMemberGenotype);
-      
-      // insert a fake team member
-      team.Insert(j);
-      
-   }
-   
-   cSingleTeamEC.InsertTeam(0, team);
-   
-   return cSingleTeamEC;
 }
 
 /****************************************/

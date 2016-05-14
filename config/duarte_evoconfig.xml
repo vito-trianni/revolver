@@ -11,7 +11,7 @@
   delta_stimulus_increase_B     = "1.0"
   alpha_stimulus_decrease_A     = "0.03"
   alpha_stimulus_decrease_B     = "0.03"
-  switching_cost                = "0"
+  switching_cost                = "8"
   beta_fitness_weight_factor    = "0.75"
   sigma_fitness2                = "0.1"
   
@@ -23,12 +23,15 @@
   results_filename              = "/home/ubuntu/workspace/results.txt"
   results_endrune_basename      = "/home/ubuntu/workspace/endrun"
   
-  recombination_factor          = "0.5"
-  standalone_genotype           = "4(0.0,11.0,0.0,27.0)"
-  
   >
   
 </simulator>
+
+<standalone
+  recombination_factor          = "0.5"
+  standalone_genotype           = "4(20.0,20.0,0.0,0.0)"
+  
+  >
 
 <custom-colony
 

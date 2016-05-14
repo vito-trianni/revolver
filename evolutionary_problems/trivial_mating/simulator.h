@@ -109,12 +109,9 @@ class CSimulator {
    ofstream outputResultsEndrun;
    
    // other variables
-   Real m_fRecombinationFactor;
    string m_sFitnessToUse;
    string m_sFitnessAveraging;
-   
-   string m_sStandaloneGenotypeString;
-   CVector<Real> m_cStandaloneGenotype;
+
    
  public:
    CSimulator();
@@ -147,8 +144,6 @@ class CSimulator {
    virtual void Reset();
    virtual void Destroy();
    
-   virtual CEvaluationConfig GenerateFoundingTeam(UInt32 un_team_size, UInt32 un_genotype_length, CRange<Real>& m_cGenotypeValueRange, UInt32 un_num_samples);
-
 };
 
 
