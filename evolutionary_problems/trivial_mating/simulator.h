@@ -28,6 +28,8 @@ class CSimulator {
     UInt32 m_unCurrentTask;
     // A counter that is used to wait while switching (in presence of switching cost)
     UInt32 m_unSwitchingTimestep;
+    // A state variable that memorizes whether the agent is switching or non-switching state
+    bool m_bSwitchingTask;
     // A counter that counts how many times the task was NOT switched
     UInt32 m_unNonSwitchingTaskCounter;
     // A counter that counts how many total actions the agent has done

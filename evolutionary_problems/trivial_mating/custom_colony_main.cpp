@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
          cNewAgent.m_unTotalActionsPerAgent = 0;
          cSimulator.AddAgentToColony(cNewAgent);
          u_count_agents++;
-         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
       }
       
       for ( UInt32 i = 0; i < u_num_agents_mutant_B; ++i){
@@ -199,7 +199,7 @@ int main(int argc, char** argv) {
          cNewAgent.m_unNonSwitchingTaskCounter = 0;
          cNewAgent.m_unTotalActionsPerAgent = 0;
          cSimulator.AddAgentToColony(cNewAgent);
-         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
          u_count_agents++;
       }
       
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
          cNewAgent.m_unNonSwitchingTaskCounter = 0;
          cNewAgent.m_unTotalActionsPerAgent = 0;
          cSimulator.AddAgentToColony(cNewAgent);
-         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
          u_count_agents++;
       }
       
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
          cNewAgent.m_unNonSwitchingTaskCounter = 0;
          cNewAgent.m_unTotalActionsPerAgent = 0;
          cSimulator.AddAgentToColony(cNewAgent);
-         //LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
+         LOG << "Adding agent with A " << cNewAgent.m_fThresholdTaskA << " B " << cNewAgent.m_fThresholdTaskB << std::endl;
          u_count_agents++;
       }
       
