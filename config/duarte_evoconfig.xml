@@ -29,9 +29,10 @@
 
 <standalone
   recombination_factor          = "0.5"
-  standalone_genotype           = "4(20.0,20.0,0.0,0.0)"
+  standalone_genotype           = "4(0.0,0.0,0.0,0.0)"
   
   >
+</standalone>
 
 <custom-colony
 

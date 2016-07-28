@@ -264,6 +264,158 @@ void CSimulator::WriteResults(UInt32 u_timestep){
 /****************************************/
 /****************************************/
 
+void CSimulator::StepOneThreshold(std::vector<Agent>::iterator it, Actions& c_actions_this_timestep){
+    Real fPerceivedCombinedStimulus = m_fStimulusTaskA - m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
+    bool bPerformTaskA = false;
+    bool bPerformTaskB = false;
+    
+    if(fPerceivedCombinedStimulus > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
+        bPerformTaskA = true;
+    }
+    else{
+        bPerformTaskB = true;
+    }
+    
+    if(bPerformTaskA){
+        if(it->m_unCurrentTask == 2 && m_unSwitchingCost > 0){
+            it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
+            c_actions_this_timestep.m_unIdle++;
+        }
+        else{
+            c_actions_this_timestep.m_unTaskA++;
+            if(it->m_unCurrentTask == 1){
+                it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
+            }
+            it->m_unCurrentTask = 1; // Set as Task A
+            it->m_unTotalActionsPerAgent++;
+            m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA;
+        }
+    }
+    else if (bPerformTaskB){
+        if(it->m_unCurrentTask == 1 && m_unSwitchingCost > 0){
+            it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
+            c_actions_this_timestep.m_unIdle++;
+        }
+        else{
+            c_actions_this_timestep.m_unTaskB++;
+            if(it->m_unCurrentTask == 2){
+                it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
+            }
+            it->m_unCurrentTask = 2; // Set as Task B
+            it->m_unTotalActionsPerAgent++;
+            m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
+        }
+    }
+    else {
+        LOGERR << "[ERROR] One threshold model should have agents either do A or B. Idle not allowed" << std::endl;
+        exit(-1);
+    }
+    
+    if(it->m_bSwitchingTask){
+        it->m_unSwitchingTimestep++;
+    }
+}
+
+/****************************************/
+/****************************************/
+
+void CSimulator::StepTwoThresholdsDuarte(std::vector<Agent>::iterator it, Actions& c_actions_this_timestep){
+    bool bEligibleTaskA = false;
+    bool bEligibleTaskB = false;
+    
+    bool bPerformTaskA = false;
+    bool bPerformTaskB = false;
+    
+    Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
+    Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
+    // Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
+    // Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
+    
+    if(fPerceivedStimulusTaskA > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
+        bEligibleTaskA = true;
+    }
+    if(fPerceivedStimulusTaskB > it->m_fThresholdTaskB && !it->m_bSwitchingTask){
+        bEligibleTaskB = true;
+    }
+    if(bEligibleTaskA && bEligibleTaskB){
+        //LOGERR << "Both A and B because sA " << fPerceivedStimulusTaskA << " sB " << fPerceivedStimulusTaskB << " tA " << it->m_fThresholdTaskA << " tB " << it->m_fThresholdTaskB <<endl;
+        Real fTaskChoiceRandom = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+        if(fTaskChoiceRandom < 0.5){
+            bPerformTaskA = true;
+            bPerformTaskB = false;
+        }
+        else{
+            bPerformTaskA = false;
+            bPerformTaskB = true;
+        }
+    }
+    else if(bEligibleTaskA){
+        bPerformTaskA = true;
+        bPerformTaskB = false;
+    }
+    else if(bEligibleTaskB){
+        bPerformTaskA = false;
+        bPerformTaskB = true;
+    }
+
+    if(bPerformTaskA){
+        //LOG << "Chose to do A " << std::endl;
+        if(it->m_unCurrentTask == 2 && m_unSwitchingCost > 0){
+            it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
+            c_actions_this_timestep.m_unIdle++;
+            //it->m_unCurrentTask = 0; // Set as IDLE
+        }
+        else{
+            c_actions_this_timestep.m_unTaskA++;
+            if(it->m_unCurrentTask == 1){
+                it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
+            }
+            it->m_unCurrentTask = 1; // Set as Task A
+            it->m_unTotalActionsPerAgent++;
+            m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA;
+            //LOG << "Actually did A " << std::endl << std::endl;
+            //LOG << "Total actions agent " << it->m_unTotalActionsPerAgent << std::endl;
+            //LOG << "Times not switched agent " << it->m_unNonSwitchingTaskCounter << std::endl << std::endl;
+        }
+    }
+    else if (bPerformTaskB){
+        //LOG << "Chose to do B " << std::endl;
+        
+        if(it->m_unCurrentTask == 1 && m_unSwitchingCost > 0){
+            it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
+            c_actions_this_timestep.m_unIdle++;
+            //it->m_unCurrentTask = 0; // Set as IDLE
+        }
+        else{
+            c_actions_this_timestep.m_unTaskB++;
+            if(it->m_unCurrentTask == 2){
+                it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
+            }
+            it->m_unCurrentTask = 2; // Set as Task B
+            it->m_unTotalActionsPerAgent++;
+            m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
+            //LOG << "Total actions agent " << it->m_unTotalActionsPerAgent << std::endl;
+            //LOG << "Times not switched agent " << it->m_unNonSwitchingTaskCounter << std::endl << std::endl;
+            //LOG << "Actually did B " << std::endl << std::endl;
+        }
+    }
+    else if (!bPerformTaskA && !bPerformTaskB){
+        //LOG << "Entering here freaking fuck " << std::endl;
+        c_actions_this_timestep.m_unIdle++;
+        //it->m_unCurrentTask = 0; // Set as IDLE
+    }
+    
+    if(it->m_bSwitchingTask){
+        it->m_unSwitchingTimestep++;
+    }
+    
+    //LOG << "Agent " << " has tA "<< it->m_fThresholdTaskA << " tB " << it->m_fThresholdTaskB << " and is doing " << it->m_unCurrentTask << std::endl;
+    
+}
+
+/****************************************/
+/****************************************/
+
 void CSimulator::Execute(){
     UInt32 uTimestep = 0;
     
@@ -272,12 +424,6 @@ void CSimulator::Execute(){
         Actions actionsThisTimestep = {};
         std::random_shuffle(agents.begin(), agents.end());
         for(std::vector<Agent>::iterator it = agents.begin(); it != agents.end(); ++it) {
-            
-            bool bEligibleTaskA = false;
-            bool bEligibleTaskB = false;
-            
-            bool bPerformTaskA = false;
-            bool bPerformTaskB = false;
             
             if(it->m_unSwitchingTimestep >= m_unSwitchingCost && it->m_bSwitchingTask){
                 it->m_bSwitchingTask = false;
@@ -301,92 +447,8 @@ void CSimulator::Execute(){
                 }
                 continue; // Skip the rest as action has already been done
             }
-            
-            
-            Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
-            Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
-            // Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
-            // Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
-            
-            if(fPerceivedStimulusTaskA > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
-                bEligibleTaskA = true;
-            }
-            if(fPerceivedStimulusTaskB > it->m_fThresholdTaskB && !it->m_bSwitchingTask){
-                bEligibleTaskB = true;
-            }
-            if(bEligibleTaskA && bEligibleTaskB){
-                //LOGERR << "Both A and B because sA " << fPerceivedStimulusTaskA << " sB " << fPerceivedStimulusTaskB << " tA " << it->m_fThresholdTaskA << " tB " << it->m_fThresholdTaskB <<endl;
-                Real fTaskChoiceRandom = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
-                if(fTaskChoiceRandom < 0.5){
-                    bPerformTaskA = true;
-                    bPerformTaskB = false;
-                }
-                else{
-                    bPerformTaskA = false;
-                    bPerformTaskB = true;
-                }
-            }
-            else if(bEligibleTaskA){
-                bPerformTaskA = true;
-                bPerformTaskB = false;
-            }
-            else if(bEligibleTaskB){
-                bPerformTaskA = false;
-                bPerformTaskB = true;
-            }
-        
-            if(bPerformTaskA){
-                //LOG << "Chose to do A " << std::endl;
-                if(it->m_unCurrentTask == 2 && m_unSwitchingCost > 0){
-                    it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
-                    actionsThisTimestep.m_unIdle++;
-                    //it->m_unCurrentTask = 0; // Set as IDLE
-                }
-                else{
-                    actionsThisTimestep.m_unTaskA++;
-                    if(it->m_unCurrentTask == 1){
-                        it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
-                    }
-                    it->m_unCurrentTask = 1; // Set as Task A
-                    it->m_unTotalActionsPerAgent++;
-                    m_fStimulusTaskA -= m_fAlphaStimulusDecreaseTaskA;
-                    //LOG << "Actually did A " << std::endl << std::endl;
-                    //LOG << "Total actions agent " << it->m_unTotalActionsPerAgent << std::endl;
-                    //LOG << "Times not switched agent " << it->m_unNonSwitchingTaskCounter << std::endl << std::endl;
-                }
-            }
-            else if (bPerformTaskB){
-                //LOG << "Chose to do B " << std::endl;
-                
-                if(it->m_unCurrentTask == 1 && m_unSwitchingCost > 0){
-                    it->m_bSwitchingTask = true; // Previous time agent was doing the other task. Switching!
-                    actionsThisTimestep.m_unIdle++;
-                    //it->m_unCurrentTask = 0; // Set as IDLE
-                }
-                else{
-                    actionsThisTimestep.m_unTaskB++;
-                    if(it->m_unCurrentTask == 2){
-                        it->m_unNonSwitchingTaskCounter ++; // Previous time agent was working, it did same task.
-                    }
-                    it->m_unCurrentTask = 2; // Set as Task B
-                    it->m_unTotalActionsPerAgent++;
-                    m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
-                    //LOG << "Total actions agent " << it->m_unTotalActionsPerAgent << std::endl;
-                    //LOG << "Times not switched agent " << it->m_unNonSwitchingTaskCounter << std::endl << std::endl;
-                    //LOG << "Actually did B " << std::endl << std::endl;
-                }
-            }
-            else if (!bPerformTaskA && !bPerformTaskB){
-                //LOG << "Entering here freaking fuck " << std::endl;
-                actionsThisTimestep.m_unIdle++;
-                //it->m_unCurrentTask = 0; // Set as IDLE
-            }
-            
-            if(it->m_bSwitchingTask){
-                it->m_unSwitchingTimestep++;
-            }
-            
-            //LOG << "Agent " << " has tA "<< it->m_fThresholdTaskA << " tB " << it->m_fThresholdTaskB << " and is doing " << it->m_unCurrentTask << std::endl;
+
+            StepTwoThresholdsDuarte(it,actionsThisTimestep);
             
         }
         

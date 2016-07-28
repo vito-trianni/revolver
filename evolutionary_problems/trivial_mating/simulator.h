@@ -131,6 +131,8 @@ class CSimulator {
    
    virtual void WriteResults(UInt32 u_timestep);
    
+   virtual void StepTwoThresholdsDuarte(std::vector<Agent>::iterator it, Actions& c_actions_this_timestep);
+   virtual void StepOneThreshold(std::vector<Agent>::iterator it, Actions& c_actions_this_timestep);
    virtual void Execute();
    
    virtual Real ComputeFitnessWeak(UInt32 u_actions_A, UInt32 u_actions_B);
