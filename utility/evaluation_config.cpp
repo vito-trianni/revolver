@@ -170,7 +170,25 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
 
    UInt32 uGenotypeSize = cMotherGenotype.GetSize();
    Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
-   if(fRecombineRandom < m_fRecombinationFactor){
+   
+   if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
+      Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+      if(fParentChoiceRandom < 0.5){
+         CGenotype offSpringGenotype(cMotherGenotype);
+         offSpringGenotype.Reset();
+         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
+         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
+         return offSpringGenotype;
+      }
+      else{
+         CGenotype offSpringGenotype(cFatherGenotype);
+         offSpringGenotype.Reset();
+         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
+         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
+         return offSpringGenotype;
+      }
+   }
+   else{
       // Single (random) point crossover
       UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
       Real pf_control_parameters[uGenotypeSize];
@@ -201,23 +219,6 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
-   }
-   else{
-      Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
-      if(fParentChoiceRandom < 0.5){
-         CGenotype offSpringGenotype(cMotherGenotype);
-         offSpringGenotype.Reset();
-         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
-         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
-         return offSpringGenotype;
-      }
-      else{
-         CGenotype offSpringGenotype(cFatherGenotype);
-         offSpringGenotype.Reset();
-         offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
-         offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
-         return offSpringGenotype;
-      }
    }
    
 }

@@ -24,6 +24,8 @@ const string CONFIGURATION_ENDRUN_RESULTS_BASENAME      = "results_endrune_basen
 const string CONFIGURATION_FITNESS_TO_USE               = "fitness_to_use";
 const string CONFIGURATION_FITNESS_AVERAGING            = "fitness_averaging";
 
+const string CONFIGURATION_MODEL_TYPE                   = "model_type";
+
 const string FITNESS_TYPE_WEAK                          = "weak";
 const string FITNESS_TYPE_STRONG                        = "strong";
 const string FITNESS_TYPE_WEAK_OVERALL                  = "weak_overall";
@@ -32,6 +34,9 @@ const string FITNESS_TYPE_STRONG_OVERALL_LOG_ACTS       = "strong_overall_log_ac
 
 const string FITNESS_AVERAGING_ARITHMETIC               = "ari";
 const string FITNESS_AVERAGING_GEOMETRIC                = "geo";
+
+const string MODEL_TYPE_TWO_THRESHOLDS_DUARTE           = "two_thresholds";
+const string MODEL_TYPE_SINGLE_THRESHOLD                = "single_threshold";
 
 /****************************************/
 /****************************************/
@@ -66,7 +71,8 @@ CSimulator::CSimulator():
     m_sEndrunResultsBasename(""),
     m_sExperimentFilename(""),
     m_sFitnessToUse(""),
-    m_sFitnessAveraging("")
+    m_sFitnessAveraging(""),
+    m_sModelType("")
 {
     if( !CRandom::ExistsCategory( "simulator" ) ) {
       CRandom::CreateCategory(  "simulator", 1 );
@@ -115,6 +121,8 @@ void CSimulator::LoadExperiment(){
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_TO_USE,    m_sFitnessToUse);
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_FITNESS_AVERAGING, m_sFitnessAveraging);
 
+    GetNodeAttribute(t_simulator_configuration, CONFIGURATION_MODEL_TYPE, m_sModelType);
+
     if(m_bWriteResultsTime){
         ostringstream filename;
         filename.fill( '0' );
@@ -133,8 +141,17 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
     for(UInt32 i = 0 ; i < m_unColonySize ; ++i){
         Agent cNewAgent = {};
         CGenotype cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
-        cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
-        cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];
+        if(m_sModelType.compare(MODEL_TYPE_TWO_THRESHOLDS_DUARTE) == 0 && cOffSpringGenotype.GetSize() == 2){
+            cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
+            cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];
+        }
+        else if(m_sModelType.compare(MODEL_TYPE_SINGLE_THRESHOLD) == 0 && cOffSpringGenotype.GetSize() == 1){
+            cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
+        }
+        else{
+            LOGERR << "[ERROR] Model type and combination with genotype size non existent. Model type: " << m_sModelType << ". Genotype size: " << cOffSpringGenotype.GetSize() << ". Exiting ..." << std::endl;
+            exit(-1);
+        }
         //LOG << "Created agent with A: " << cNewAgent.m_fThresholdTaskA << " and B " << cNewAgent.m_fThresholdTaskB << std::endl;
         cNewAgent.m_unCurrentTask = 0; // IDLE
         cNewAgent.m_unSwitchingTimestep = 0;
@@ -328,8 +345,6 @@ void CSimulator::StepTwoThresholdsDuarte(std::vector<Agent>::iterator it, Action
     
     Real fPerceivedStimulusTaskA = m_fStimulusTaskA + m_pcRNG->Gaussian(1.0,0.0);
     Real fPerceivedStimulusTaskB = m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
-    // Real fPerceivedStimulusTaskA = m_fStimulusTaskA;
-    // Real fPerceivedStimulusTaskB = m_fStimulusTaskB;
     
     if(fPerceivedStimulusTaskA > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
         bEligibleTaskA = true;
@@ -447,8 +462,17 @@ void CSimulator::Execute(){
                 }
                 continue; // Skip the rest as action has already been done
             }
-
-            StepTwoThresholdsDuarte(it,actionsThisTimestep);
+            
+            if(m_sModelType.compare(MODEL_TYPE_TWO_THRESHOLDS_DUARTE) == 0){
+                StepTwoThresholdsDuarte(it,actionsThisTimestep);
+            }
+            else if(m_sModelType.compare(MODEL_TYPE_SINGLE_THRESHOLD) == 0){
+                StepOneThreshold(it,actionsThisTimestep);
+            }
+            else{
+                LOGERR << "[ERROR] Specified model " << m_sModelType << " unknown. Exiting." << std::endl;
+                exit(-1);
+            }
             
         }
         

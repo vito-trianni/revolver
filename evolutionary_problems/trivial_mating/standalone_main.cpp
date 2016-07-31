@@ -57,9 +57,8 @@ using namespace std;
  *
  */
 
-
 const string CONFIGURATION_STANDALONE_GENOTYPE          = "standalone_genotype";
-const string CONFIGURATION_RECOMBINATION_FACTOR         = "recombination_factor"; 
+const string CONFIGURATION_RECOMBINATION_FACTOR         = "recombination_factor";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluation Configuration - This could be added to the XML
@@ -74,6 +73,8 @@ Real f_recombination_factor;
 
 string s_standalone_genotype_string;
 CVector<Real> c_standalone_genotype;
+
+string s_model_type = "";
 
 CRange<Real> c_genotype_value_range = CRange<Real>(0.0,100.0);
 
@@ -90,10 +91,23 @@ void LoadExperimentStandalone(string s_experiment_filename){
     
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_STANDALONE_GENOTYPE, s_standalone_genotype_string);
     GetNodeAttribute(t_simulator_configuration, CONFIGURATION_RECOMBINATION_FACTOR, f_recombination_factor);
+    
+    s_model_type = cSimulator.GetModelType();
+    if(s_model_type.compare("two_thresholds") == 0){
+       un_genotype_length = 2;
+    }
+    else if(s_model_type.compare("single_threshold") == 0){
+       un_genotype_length = 1;
+    }
+    else{
+       LOGERR << "[ERROR] Non existing or not yet implemented model. Exiting " << std::endl;
+       exit(-1);
+    }
+    
     istringstream standaloneGenotypeStream(s_standalone_genotype_string);
     standaloneGenotypeStream >> c_standalone_genotype;
     
-    un_team_size = c_standalone_genotype.GetSize() / 2;
+    un_team_size = c_standalone_genotype.GetSize() / un_genotype_length;
     
 }
 
@@ -206,6 +220,8 @@ int main(int argc, char** argv) {
 
    CEvaluationConfig evaluation_config = GenerateFoundingTeam();
    
+   //LOGERR << "Generated founding team " << std::endl;
+   
    // start evaluation
    for( UInt32 i = 0; i < un_num_samples; ++i ) {
       // set the random seed in the simulator
@@ -217,8 +233,12 @@ int main(int argc, char** argv) {
       // resetting the experiment
       cSimulator.Reset();
       
+      //LOGERR << "Setting control parameters " << std::endl;
+      
       // set the controller parameters
       cSimulator.SetControlParameters(&evaluation_config);
+      
+      //LOGERR << "Running simulation " << std::endl;
       
       // run the simulation
       cSimulator.Execute();

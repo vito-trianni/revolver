@@ -111,7 +111,9 @@ class CSimulator {
    // other variables
    string m_sFitnessToUse;
    string m_sFitnessAveraging;
-
+   
+   // model type
+   string m_sModelType;
    
  public:
    CSimulator();
@@ -142,6 +144,9 @@ class CSimulator {
    virtual CObjectives ComputePerformanceInExperiment();
    
    virtual CRandom::CRNG* GetRNG(){return m_pcRNG;};
+   
+   //virtual inline void SetModelType(string s_model_type){m_sModelType = s_model_type;};
+   virtual inline string GetModelType(){return m_sModelType;};
    
    virtual void Reset();
    virtual void Destroy();

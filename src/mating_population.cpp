@@ -133,7 +133,9 @@ void CMatingPopulation::Update() {
          cOffSpringGenotype.SetRNG(m_pcRNG);
          if(!elite){
             cOffSpringGenotype.MutateNormalWithProbability(m_fMutationVariance,m_fMutationProbability);
-            cOffSpringGenotype.CutOffMin();
+            if(cOffSpringGenotype.GetSize() != 1){ // PORCATA: not so elegant. This == 1 case corresponds to the single threshold, which is now allowed to go negative.
+               cOffSpringGenotype.CutOffMin();
+            }
          }
          cOffSpringEC->InsertControlParameters(j,cOffSpringGenotype);
          //LOGERR << "Mutated offspring: " << cOffSpringGenotype << endl ;
