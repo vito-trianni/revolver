@@ -282,14 +282,27 @@ void CSimulator::WriteResults(UInt32 u_timestep){
 /****************************************/
 
 void CSimulator::StepOneThreshold(std::vector<Agent>::iterator it, Actions& c_actions_this_timestep){
+    // Compute combined stimulus sA - sB
     Real fPerceivedCombinedStimulus = m_fStimulusTaskA - m_fStimulusTaskB + m_pcRNG->Gaussian(1.0,0.0);
     bool bPerformTaskA = false;
     bool bPerformTaskB = false;
     
-    if(fPerceivedCombinedStimulus > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
+    // If combined stimulus is very close to zero, select a task at random
+    if (abs(fPerceivedCombinedStimulus - it->m_fThresholdTaskA) < 0.001 && !it->m_bSwitchingTask){
+        Real fTaskChoiceRandom = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+        if(fTaskChoiceRandom < 0.5){
+            bPerformTaskA = true;
+        }
+        else{
+            bPerformTaskB = true;
+        }
+    }
+    else if(fPerceivedCombinedStimulus > it->m_fThresholdTaskA && !it->m_bSwitchingTask){
+        // Combined stimulus > thrA --> Do task A
         bPerformTaskA = true;
     }
-    else{
+    else if(fPerceivedCombinedStimulus < it->m_fThresholdTaskA && !it->m_bSwitchingTask){
+        // Combined stimulus < thrA --> Do task B
         bPerformTaskB = true;
     }
     
@@ -472,6 +485,12 @@ void CSimulator::Execute(){
             else{
                 LOGERR << "[ERROR] Specified model " << m_sModelType << " unknown. Exiting." << std::endl;
                 exit(-1);
+            }
+            if(m_fStimulusTaskA < 0.0){
+                m_fStimulusTaskA = 0.0;
+            }
+            if(m_fStimulusTaskB < 0.0){
+                m_fStimulusTaskB = 0.0;
             }
             
         }
