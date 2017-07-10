@@ -336,8 +336,8 @@ void CSimulator::StepOneThreshold(std::vector<Agent>::iterator it, Actions& c_ac
             m_fStimulusTaskB -= m_fAlphaStimulusDecreaseTaskB;
         }
     }
-    else {
-        LOGERR << "[ERROR] One threshold model should have agents either do A or B. Idle not allowed" << std::endl;
+    else if(!it->m_bSwitchingTask){
+        LOGERR << "[ERROR] One threshold model should have agents either do A or B. Idle allowed only when switching tasks." << std::endl;
         exit(-1);
     }
     
