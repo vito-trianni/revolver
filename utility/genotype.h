@@ -17,10 +17,12 @@ using namespace argos;
 
 // simple class to store control parameters from real-valued genotypes
 class CGenotype : public CControlParameters {
- private:
-   // variables for the random number generation
+ protected:
+   // variables for the random number generation 
    CRandom::CRNG*  m_pcRNG;
-
+ 
+ private:
+ 
    UInt32 m_unID;
    CObjectives m_cPerformance;
    CVector<UInt32> m_cAncestors;
@@ -49,6 +51,8 @@ class CGenotype : public CControlParameters {
    void CutOffMax();
    inline void Reset() {m_cPerformance.Reset(); m_cAncestors.Reset();};
    inline void InsertAncestor(UInt32 un_index) {m_cAncestors.Insert(un_index);};
+   inline const CVector<UInt32>& GetAncestors() { return m_cAncestors;};
+   inline void SetAncestors(const CVector<UInt32> c_ancestors) { m_cAncestors = c_ancestors;};
 
    CGenotype& operator=(const CGenotype& c_genotype );
 
