@@ -162,6 +162,140 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 /****************************************/
 /****************************************/
 
+CDiploidGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
+   
+   CDiploidGenotype& cMotherGenotype = dynamic_cast<CDiploidGenotype&>(GetControlParameters(0));
+   
+   UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
+   CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
+   
+   vector<Real> cMotherInheritedAllele;
+   vector<Real> cFatherInheritedAllele;
+   
+   UInt32 uGenotypeSize = cMotherGenotype.GetSize();
+   Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+   
+   Real fMotherAlleleChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+   if(fMotherAlleleChoiceRandom < 0.5){
+      cMotherInheritedAllele = cMotherGenotype.GetAlleles1().GetValues();
+   }
+   else{
+      cMotherInheritedAllele = cMotherGenotype.GetAlleles2().GetValues();
+   }
+   cFatherInheritedAllele = cFatherGenotype.GetValues();
+   
+   if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
+      
+      CDiploidGenotype cOffspringGenotype(cMotherInheritedAllele,cFatherInheritedAllele,cMotherGenotype.GetRange());
+      cOffspringGenotype.Reset();
+      cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
+      cOffspringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
+      return cOffspringGenotype;
+   }
+   else{
+      
+      // Single (random) point crossover
+      UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
+      Real pf_control_parameters_allele1[uGenotypeSize];
+      Real pf_control_parameters_allele2[uGenotypeSize];
+      Real fParentChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0)); // From which parent we chose first and second block
+      // First chunk until cutoff
+      for(UInt32 i = 0; i < nCutoffPoint ; ++i){
+         if(fParentChoiceRandom < 0.5){
+            pf_control_parameters_allele1[i] = cMotherInheritedAllele[i];
+            pf_control_parameters_allele2[i] = cFatherInheritedAllele[i];
+         }
+         else{
+            pf_control_parameters_allele1[i] = cFatherInheritedAllele[i];
+            pf_control_parameters_allele2[i] = cMotherInheritedAllele[i];
+         }
+      }
+      // Second chunk from cutoff to the end. We use the same random number so if before we took from mom now
+      // we take from dad and viceversa
+      for(UInt32 i = nCutoffPoint; i < uGenotypeSize ; ++i){
+         if(fParentChoiceRandom < 0.5){
+            pf_control_parameters_allele1[i] = cFatherInheritedAllele[i];
+            pf_control_parameters_allele2[i] = cMotherInheritedAllele[i];
+         }
+         else{
+            pf_control_parameters_allele1[i] = cMotherInheritedAllele[i];
+            pf_control_parameters_allele2[i] = cFatherInheritedAllele[i];
+         }
+      }
+      CDiploidGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters_allele1,pf_control_parameters_allele2,cMotherGenotype.GetRange());
+      offSpringGenotype.Reset();
+      offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
+      offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
+      return offSpringGenotype;
+      
+   }
+   
+}
+
+
+/****************************************/
+/****************************************/
+
+CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
+   CDiploidGenotype& cMotherGenotype = dynamic_cast<CDiploidGenotype&>(GetControlParameters(0));
+   
+   vector<Real> cMotherAllele1 = cMotherGenotype.GetAlleles1().GetValues();;
+   vector<Real> cMotherAllele2 = cMotherGenotype.GetAlleles2().GetValues();;
+   
+   UInt32 uGenotypeSize = cMotherGenotype.GetSize();
+   Real fRecombineRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+   
+   if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
+      Real fMotherAlleleChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
+      if(fMotherAlleleChoiceRandom < 0.5){
+         CGenotype cOffspringGenotype(cMotherAllele1,cMotherGenotype.GetRange());
+         cOffspringGenotype.Reset();
+         cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
+         return cOffspringGenotype;
+      }
+      else{
+         CGenotype cOffspringGenotype(cMotherAllele2,cMotherGenotype.GetRange());
+         cOffspringGenotype.Reset();
+         cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
+         return cOffspringGenotype;
+      }   
+   }
+   else{
+      
+      // Single (random) point crossover
+      UInt32 nCutoffPoint = pc_rng->Uniform(CRange<UInt32>(1,uGenotypeSize)); // First (last) element always in first (second) chunk
+      Real pf_control_parameters[uGenotypeSize];
+      Real fAlleleChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0)); // From which parent we chose first and second block
+      // First chunk until cutoff
+      for(UInt32 i = 0; i < nCutoffPoint ; ++i){
+         if(fAlleleChoiceRandom < 0.5){
+            pf_control_parameters[i] = cMotherAllele1[i];
+         }
+         else{
+            pf_control_parameters[i] = cMotherAllele2[i];
+         }
+      }
+      // Second chunk from cutoff to the end. We use the same random number so if before we took from mom now
+      // we take from dad and viceversa
+      for(UInt32 i = nCutoffPoint; i < uGenotypeSize ; ++i){
+         if(fAlleleChoiceRandom < 0.5){
+            pf_control_parameters[i] = cMotherAllele2[i];
+         }
+         else{
+            pf_control_parameters[i] = cMotherAllele1[i];
+         }
+      }
+      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
+      offSpringGenotype.Reset();
+      offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
+      return offSpringGenotype;     
+   }
+  
+}
+
+/****************************************/
+/****************************************/
+
 CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
    CGenotype& cMotherGenotype = GetControlParameters(0);
 

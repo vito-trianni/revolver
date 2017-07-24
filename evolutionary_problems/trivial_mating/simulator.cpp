@@ -140,7 +140,16 @@ void CSimulator::LoadExperiment(){
 void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
     for(UInt32 i = 0 ; i < m_unColonySize ; ++i){
         Agent cNewAgent = {};
-        CGenotype cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
+        string sGenotypeType = e_config->GetGenotypeType();
+        CGenotype cOffSpringGenotype;
+        if (sGenotypeType.compare("haploid") == 0){
+            cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
+        }
+        else if (sGenotypeType.compare("haplo-diploid") == 0){
+            cOffSpringGenotype = e_config->ReproduceSexuallyHaploDiploid(m_pcRNG);
+        } 
+        cOffSpringGenotype.GenotypeToPhenotypeMapping();
+        
         if(m_sModelType.compare(MODEL_TYPE_TWO_THRESHOLDS_DUARTE) == 0 && cOffSpringGenotype.GetSize() == 2){
             cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
             cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];

@@ -4,6 +4,13 @@
 const string CONFIGURATION_EVOLUTION_FOUNDING_TEAM_SIZE        = "founding_team_size";
 const string CONFIGURATION_EVOLUTION_INIT_GENOTYPE             = "genotype_monomorphic_init_value";
 const string CONFIGURATION_MUTATION_PROBABILITY                = "mutation_probability";
+const string CONFIGURATION_GENOTYPE_TYPE                       = "genotype_type";
+const string CONFIGURATION_DIPLOID_DOMINANCE_TYPE              = "dominance_type";
+
+const string GENOTYPE_TYPE_HAPLOID                             = "haploid";
+const string GENOTYPE_TYPE_HAPLO_DIPLOID                       = "haplo-diploid";
+const string GENOTYPE_TYPE_DIPLOID                             = "diploid";
+
 
 /****************************************/
 /****************************************/
@@ -26,6 +33,8 @@ CMatingPopulation::CMatingPopulation() :
    m_fMonomorphicInitGenotype(0.0),
    m_unBestIndividual(0),
    m_unWorstIndividual(0),
+   m_sGenotypeType(""),
+   m_sDominanceType(""),
    m_bSorted( false )
 {}
 
@@ -54,6 +63,9 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
    GetNodeAttribute(t_configuration_tree, CONFIGURATION_EVOLUTION_INIT_GENOTYPE, m_fMonomorphicInitGenotype );
    GetNodeAttribute(t_configuration_tree, CONFIGURATION_MUTATION_PROBABILITY , m_fMutationProbability );
    
+   GetNodeAttribute(t_configuration_tree, CONFIGURATION_GENOTYPE_TYPE , m_sGenotypeType );
+   GetNodeAttribute(t_configuration_tree, CONFIGURATION_DIPLOID_DOMINANCE_TYPE , m_sDominanceType );
+   
    UInt32 nGenotypeUniqueID = 0;
    
    // initialise the genotypes within the population
@@ -61,6 +73,8 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
       CEvaluationConfig* cSingleTeamEC = new CEvaluationConfig( 1, m_unFoundingTeamSize );
       cSingleTeamEC->SetRecombinationFactor(m_fRecombinationFactor);
       cSingleTeamEC->SetIndividualIndex(i); // This is the ID of the mother. There are M ids.
+      
+      cSingleTeamEC->SetGenotypeType(m_sGenotypeType);
       
       // build a fake team
       TTeam team;
@@ -73,11 +87,25 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
          for(UInt32 k = 0 ; k < m_unGenotypeSize ; ++k){
             pf_control_parameters[k] = m_fMonomorphicInitGenotype;
          }
-         CGenotype cTeamMemberGenotype(m_unGenotypeSize,pf_control_parameters,m_cGenotypeValueRange);
-         cTeamMemberGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
-         cTeamMemberGenotype.SetRNG(m_pcRNG);
          
-         cSingleTeamEC->InsertControlParameters(j,cTeamMemberGenotype);
+         if( ((m_sGenotypeType.compare(GENOTYPE_TYPE_HAPLO_DIPLOID) == 0) && (j == 0) )  || (m_sGenotypeType.compare(GENOTYPE_TYPE_DIPLOID) == 0) ){
+            Real pf_control_parameters_allele2[m_unGenotypeSize];
+            for(UInt32 k = 0 ; k < m_unGenotypeSize ; ++k){
+               pf_control_parameters_allele2[k] = m_fMonomorphicInitGenotype;
+            }
+            CDiploidGenotype cDiploidGenotype(m_unGenotypeSize, pf_control_parameters, pf_control_parameters_allele2, m_cGenotypeValueRange);
+            cDiploidGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
+            cDiploidGenotype.SetRNG(m_pcRNG);
+         
+            cSingleTeamEC->InsertControlParameters(j,cDiploidGenotype);   
+         }
+         else{
+            CGenotype cTeamMemberGenotype(m_unGenotypeSize,pf_control_parameters,m_cGenotypeValueRange);
+            cTeamMemberGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
+            cTeamMemberGenotype.SetRNG(m_pcRNG);
+         
+            cSingleTeamEC->InsertControlParameters(j,cTeamMemberGenotype);   
+         }
          
          // insert a fake team member
          team.Insert(j);
@@ -127,7 +155,16 @@ void CMatingPopulation::Update() {
       for( UInt32 j = 0; j < m_unFoundingTeamSize; ++j ) {
          bool elite = false;
          UInt32 index = m_pcSelectionStrategy->GetNextIndividual(elite); // This should get the ID of the mother/funding team
-         CGenotype cOffSpringGenotype = m_vecTeams[index]->GetOffspringGenotype(m_pcRNG);
+         CGenotype cOffSpringGenotype;
+         if( ((m_sGenotypeType.compare(GENOTYPE_TYPE_HAPLO_DIPLOID) == 0) && (j == 0) ) ){
+            cOffSpringGenotype = m_vecTeams[index]->ReproduceSexuallyHaploDiploid(m_pcRNG);
+         }
+         else if (m_sGenotypeType.compare(GENOTYPE_TYPE_HAPLO_DIPLOID) == 0){
+            cOffSpringGenotype = m_vecTeams[index]->ReproduceAsexuallyHaploDiploid(m_pcRNG);
+         }
+         else if (m_sGenotypeType.compare(GENOTYPE_TYPE_HAPLOID) == 0){
+            cOffSpringGenotype = m_vecTeams[index]->GetOffspringGenotype(m_pcRNG);
+         }
          //LOGERR << "Offspring: " << cOffSpringGenotype << endl ;
          cOffSpringGenotype.SetID(nGenotypeUniqueID);
          cOffSpringGenotype.SetRNG(m_pcRNG);

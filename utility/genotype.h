@@ -53,6 +53,8 @@ class CGenotype : public CControlParameters {
    inline void InsertAncestor(UInt32 un_index) {m_cAncestors.Insert(un_index);};
    inline const CVector<UInt32>& GetAncestors() { return m_cAncestors;};
    inline void SetAncestors(const CVector<UInt32> c_ancestors) { m_cAncestors = c_ancestors;};
+   
+   inline void GenotypeToPhenotypeMapping(){};
 
    CGenotype& operator=(const CGenotype& c_genotype );
 

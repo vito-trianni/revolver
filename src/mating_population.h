@@ -5,6 +5,7 @@
 
 #include "population.h"
 #include <utility/evaluation_config.h>
+#include <utility/diploid_genotype.h>
 
 using namespace std;
 using namespace argos;
@@ -27,6 +28,9 @@ class CMatingPopulation : public CPopulation  {
    bool m_bSorted;
    UInt32 m_unBestIndividual;
    UInt32 m_unWorstIndividual;
+   
+   string m_sGenotypeType;
+   string m_sDominanceType;
 
 
  public:

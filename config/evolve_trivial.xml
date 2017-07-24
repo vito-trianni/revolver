@@ -22,7 +22,11 @@
     num_objectives = "7"
     recombination_factor = "0.5"
     genotype_monomorphic_init_value = "10.0"
-    founding_team_size = "2">
+    founding_team_size = "2"
+    
+    genotype_type = "haploid"
+    dominance_type = "dominance"
+    >
     <selection
       type="roulette"
       elite_size = "0"

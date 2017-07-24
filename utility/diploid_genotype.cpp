@@ -1,5 +1,9 @@
 #include "diploid_genotype.h"
 
+const string DIPLOID_DOMINANCE_TYPE_DOMINANCE                  = "dominance";
+const string DIPLOID_DOMINANCE_TYPE_CODOMINANCE                = "codominance";
+
+
 /****************************************/
 /****************************************/
 
@@ -62,6 +66,37 @@ CDiploidGenotype::CDiploidGenotype( CRandom::CRNG* pc_RNG, UInt32 un_num_values,
 
 
 CDiploidGenotype::~CDiploidGenotype() {
+}
+
+/****************************************/
+/****************************************/
+
+void CDiploidGenotype::GenotypeToPhenotypeMapping(){
+   for(int i = 0; i < m_vecElements.size() ; ++i){
+      if (m_sDominanceType.compare(DIPLOID_DOMINANCE_TYPE_DOMINANCE) == 0){
+         // Largest trait in absolute value
+         if(Abs(GetAlleles1().GetElement(i)) > Abs(GetAlleles2().GetElement(i)) ){
+            Insert(i,GetAlleles1().GetElement(i));
+         }
+         else if (Abs(GetAlleles1().GetElement(i)) < Abs(GetAlleles2().GetElement(i)) ){
+            Insert(i,GetAlleles2().GetElement(i));
+         }
+         else{
+            Real fRandomAlleleChoice = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+            if(fRandomAlleleChoice < 0.5){
+               Insert(i,GetAlleles1().GetElement(i));
+            }
+            else{
+               Insert(i,GetAlleles2().GetElement(i));
+            }
+         }
+      }
+      else if (m_sDominanceType.compare(DIPLOID_DOMINANCE_TYPE_CODOMINANCE) == 0){
+         Insert(i,(GetAlleles1().GetElement(i) + GetAlleles2().GetElement(i)) / 2.0); // Average trait
+         
+      }
+   }
+   
 }
 
 /****************************************/

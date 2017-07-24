@@ -13,6 +13,8 @@ class CDiploidGenotype : public CGenotype {
     CControlParameters m_cAlleles1;
     CControlParameters m_cAlleles2;
     
+    string m_sDominanceType;
+    
     public:
     CDiploidGenotype();
        
@@ -27,6 +29,10 @@ class CDiploidGenotype : public CGenotype {
     
     inline void SetAlleles1(CControlParameters& c_alleles_1){m_cAlleles1 = c_alleles_1;};
     inline void SetAlleles2(CControlParameters& c_alleles_2){m_cAlleles2 = c_alleles_2;};
+    
+    inline void SetDominanceType(const string s_dominance_type){m_sDominanceType = s_dominance_type;};
+    
+    void GenotypeToPhenotypeMapping();
     
     void MutateNormal( const Real f_mutation_variance );
     void MutateNormalWithProbability(const Real f_mutation_variance, const Real f_mutation_probability);
