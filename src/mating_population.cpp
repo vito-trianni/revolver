@@ -4,13 +4,10 @@
 const string CONFIGURATION_EVOLUTION_FOUNDING_TEAM_SIZE        = "founding_team_size";
 const string CONFIGURATION_EVOLUTION_INIT_GENOTYPE             = "genotype_monomorphic_init_value";
 const string CONFIGURATION_MUTATION_PROBABILITY                = "mutation_probability";
-const string CONFIGURATION_GENOTYPE_TYPE                       = "genotype_type";
-const string CONFIGURATION_DIPLOID_DOMINANCE_TYPE              = "dominance_type";
 
 const string GENOTYPE_TYPE_HAPLOID                             = "haploid";
 const string GENOTYPE_TYPE_HAPLO_DIPLOID                       = "haplo-diploid";
 const string GENOTYPE_TYPE_DIPLOID                             = "diploid";
-
 
 /****************************************/
 /****************************************/
@@ -33,8 +30,6 @@ CMatingPopulation::CMatingPopulation() :
    m_fMonomorphicInitGenotype(0.0),
    m_unBestIndividual(0),
    m_unWorstIndividual(0),
-   m_sGenotypeType(""),
-   m_sDominanceType(""),
    m_bSorted( false )
 {}
 
@@ -62,9 +57,7 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
    
    GetNodeAttribute(t_configuration_tree, CONFIGURATION_EVOLUTION_INIT_GENOTYPE, m_fMonomorphicInitGenotype );
    GetNodeAttribute(t_configuration_tree, CONFIGURATION_MUTATION_PROBABILITY , m_fMutationProbability );
-   
-   GetNodeAttribute(t_configuration_tree, CONFIGURATION_GENOTYPE_TYPE , m_sGenotypeType );
-   GetNodeAttribute(t_configuration_tree, CONFIGURATION_DIPLOID_DOMINANCE_TYPE , m_sDominanceType );
+
    
    UInt32 nGenotypeUniqueID = 0;
    

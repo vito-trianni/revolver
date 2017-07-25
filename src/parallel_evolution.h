@@ -23,6 +23,7 @@ class CParallelEvolution : public CEvolution {
    UInt32* m_punEvaluationSeeds;
    
    string m_sInvalidName;
+   UInt32 m_unGenotypeType;
 
  public:
    CParallelEvolution();

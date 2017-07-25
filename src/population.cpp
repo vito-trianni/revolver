@@ -8,6 +8,9 @@ const string CONFIGURATION_MUTATION_VARIANCE                   = "mutation_varia
 const string CONFIGURATION_EVOLUTION_OBJECTIVES                = "num_objectives";
 const string CONFIGURATION_EVOLUTION_RECOMBINATION_FACTOR      = "recombination_factor";
 
+const string CONFIGURATION_GENOTYPE_TYPE                       = "genotype_type";
+const string CONFIGURATION_DIPLOID_DOMINANCE_TYPE              = "dominance_type";
+
 
 
 /****************************************/
@@ -21,6 +24,8 @@ CPopulation::CPopulation() :
    m_cGenotypeValueRange(0,1),
    m_fMutationVariance( 0.1 ),
    m_fRecombinationFactor(0.0),
+   m_sGenotypeType(""),
+   m_sDominanceType(""),
    m_unNumObjectives( 0 )
 {}
 
@@ -68,6 +73,13 @@ void CPopulation::Init( TConfigurationNode& t_configuration_tree ) {
    if( m_fRecombinationFactor < 0.0 || m_fRecombinationFactor > 1.0 ) {
       THROW_ARGOSEXCEPTION("[REVOLVER] the recombination factor must be in [0,1]");
    }
+
+   ////////////////////////////////////////////////////////////////////////////////
+   // same problem as for the recombination factor for mating type of populations. 
+   ////////////////////////////////////////////////////////////////////////////////
+
+   GetNodeAttribute(t_configuration_tree, CONFIGURATION_GENOTYPE_TYPE , m_sGenotypeType );
+   GetNodeAttribute(t_configuration_tree, CONFIGURATION_DIPLOID_DOMINANCE_TYPE , m_sDominanceType );
 
 
    ////////////////////////////////////////////////////////////////////////////////

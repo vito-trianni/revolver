@@ -46,6 +46,10 @@ class CPopulation : public CBaseConfigurableResource  {
    // recombination factor used for experiments with mating (Duarte-like)
    Real m_fRecombinationFactor;
    
+   // Specifies whether it's haploid, haplo-diploid, or diploid, and the type of dominance
+   string m_sGenotypeType;
+   string m_sDominanceType;
+   
  public:
    CPopulation();
    ~CPopulation();
@@ -85,6 +89,12 @@ class CPopulation : public CBaseConfigurableResource  {
 
    // get the recombination factor
    virtual Real GetRecombinationFactor()const {return m_fRecombinationFactor;};
+   
+      // get the genotype type
+   virtual string GetGenotypeType()const {return m_sGenotypeType;};
+   
+   // get the dominance type
+   virtual string GetDominanceType()const {return m_sDominanceType;};
 
    // function to save the population and specific individuals
    inline virtual void Dump( const string& filename ) {LOG << "Population::Dump()" << endl;};

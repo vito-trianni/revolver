@@ -28,9 +28,6 @@ class CMatingPopulation : public CPopulation  {
    bool m_bSorted;
    UInt32 m_unBestIndividual;
    UInt32 m_unWorstIndividual;
-   
-   string m_sGenotypeType;
-   string m_sDominanceType;
 
 
  public:
@@ -55,7 +52,6 @@ class CMatingPopulation : public CPopulation  {
    // get the founding team size
    virtual UInt32 GetFoundingTeamSize()const {return m_unFoundingTeamSize;};
 
-   
    // set and store the computed performance of an individual
    virtual void SetPerformance( const UInt32& un_individual_number, CObjectives& c_objetives );
 
