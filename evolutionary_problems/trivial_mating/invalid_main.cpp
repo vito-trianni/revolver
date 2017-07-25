@@ -208,6 +208,7 @@ int main(int argc, char** argv) {
       	if(un_genotype_type == 0){ // Haploid case has the same protocol as before
       	   parent_comm.Recv( pf_genotype, un_genotype_length, MPI_ARGOSREAL, 0, 1);
       	   evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
+      	   evaluation_config.SetGenotypeType("haploid");
       	}
       	else if (un_genotype_type == 1){ // Haplo-diploid case, new protocol
       	   if(un_index == 0){
@@ -221,6 +222,7 @@ int main(int argc, char** argv) {
       	   else{
       	      parent_comm.Recv( pf_genotype, un_genotype_length, MPI_ARGOSREAL, 0, 1);
       	      evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
+      	      evaluation_config.SetGenotypeType("haplo-diploid");
       	   }
       	}
       	
