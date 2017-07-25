@@ -27,6 +27,14 @@ class CDiploidGenotype : public CGenotype {
     inline CControlParameters& GetAlleles1() { return m_cAlleles1;  };
     inline CControlParameters& GetAlleles2() { return m_cAlleles2;  };
     
+    inline const UInt32 GetSize() const {
+        if(m_cAlleles1.GetSize() != m_cAlleles2.GetSize()) {
+            LOGERR << "[ERROR] Very weird diploid alleles with different sizes. ";
+            exit(-1);
+        } 
+        return m_cAlleles1.GetSize();
+    };
+    
     inline void SetAlleles1(CControlParameters& c_alleles_1){m_cAlleles1 = c_alleles_1;};
     inline void SetAlleles2(CControlParameters& c_alleles_2){m_cAlleles2 = c_alleles_2;};
     
