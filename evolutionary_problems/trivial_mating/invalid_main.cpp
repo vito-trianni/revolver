@@ -139,7 +139,6 @@ int main(int argc, char** argv) {
    UInt32  un_num_samples = 0;
    UInt32  un_num_objectives = 0;
    Real f_recombination_factor = 0.0;
-   UInt32  un_genotype_type = 0;
    UInt32  un_dominance_type = 0;
    parent_comm.Recv( &un_genotype_length, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &un_num_teams, 1, MPI_INT, 0, 1);
@@ -148,12 +147,12 @@ int main(int argc, char** argv) {
    parent_comm.Recv( &un_num_objectives, 1, MPI_INT, 0, 1);
    parent_comm.Recv( &f_recombination_factor, 1, MPI_ARGOSREAL, 0, 1);
    
-   parent_comm.Recv( &un_genotype_type, 1 , MPI_INT , 0, 1);
    parent_comm.Recv( &un_dominance_type, 1 , MPI_INT , 0, 1);
    
    UInt32 pun_teams[un_num_teams*un_team_size];
    UInt32 pun_sample_seeds[un_num_samples];
-   Real pf_genotype[un_genotype_length];
+   Real pf_allele1[un_genotype_length];
+   Real pf_allele2[un_genotype_length];
    Real pf_results[un_num_objectives*un_num_samples + un_team_size];
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -178,25 +177,25 @@ int main(int argc, char** argv) {
       evaluation_config.SetTeams(un_num_teams*un_team_size,pun_teams);
       evaluation_config.SetRecombinationFactor(f_recombination_factor);
       
-      switch(un_genotype_type){
-         case 0:{
-            evaluation_config.SetGenotypeType("haploid");
-            break;
-         }
-         case 1:{
-            evaluation_config.SetGenotypeType("haplo-diploid");
-            break;
-         }
-         case 2:{
-            evaluation_config.SetGenotypeType("diploid");
-            break;
-         }
-         default:{
-            LOGERR << "[INVALID-ERROR] Invalid genotype type was received from the master." << std::endl;
-            exit(-1);
-            break;
-         }
-      }
+      // switch(un_genotype_type){
+      //    case 0:{
+      //       evaluation_config.SetGenotypeType("haploid");
+      //       break;
+      //    }
+      //    case 1:{
+      //       evaluation_config.SetGenotypeType("haplo-diploid");
+      //       break;
+      //    }
+      //    case 2:{
+      //       evaluation_config.SetGenotypeType("diploid");
+      //       break;
+      //    }
+      //    default:{
+      //       LOGERR << "[INVALID-ERROR] Invalid genotype type was received from the master." << std::endl;
+      //       exit(-1);
+      //       break;
+      //    }
+      // }
 
       // receiving control parameters
       parent_comm.Recv( &un_num_genotypes, 1, MPI_INT, 0, 1);
@@ -205,26 +204,21 @@ int main(int argc, char** argv) {
       	UInt32 un_index;
       	parent_comm.Recv( &un_index, 1, MPI_INT, 0, 1);
       	
-      	if(un_genotype_type == 0){ // Haploid case has the same protocol as before
-      	   parent_comm.Recv( pf_genotype, un_genotype_length, MPI_ARGOSREAL, 0, 1);
-      	   evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
-      	   evaluation_config.SetGenotypeType("haploid");
+      	UInt32  un_genotype_type = 0;
+      	parent_comm.Recv( &un_genotype_type, 1 , MPI_INT , 0, 1);
+      	
+      	parent_comm.Recv( pf_allele1, un_genotype_length, MPI_ARGOSREAL, 0, 1);
+      	parent_comm.Recv( pf_allele2, un_genotype_length, MPI_ARGOSREAL, 0, 1);
+      	
+      	CGenotype cGenotypeToInsert(un_genotype_length,pf_allele1,pf_allele2);
+      	
+      	if(un_genotype_type == 0){ // Haploid 
+      	   cGenotypeToInsert.SetHaploid();
       	}
-      	else if (un_genotype_type == 1){ // Haplo-diploid case, new protocol
-      	   if(un_index == 0){
-      	      Real pf_allele1[un_genotype_length];
-      	      Real pf_allele2[un_genotype_length];
-      	      parent_comm.Recv( pf_allele1, un_genotype_length, MPI_ARGOSREAL, 0, 1);
-      	      parent_comm.Recv( pf_allele2, un_genotype_length, MPI_ARGOSREAL, 0, 1);
-      	      
-      	      evaluation_config.InsertControlParameters(un_index, CDiploidGenotype(un_genotype_length,pf_allele1,pf_allele2));
-      	   }
-      	   else{
-      	      parent_comm.Recv( pf_genotype, un_genotype_length, MPI_ARGOSREAL, 0, 1);
-      	      evaluation_config.InsertControlParameters( un_index, CGenotype(un_genotype_length,pf_genotype) );
-      	      evaluation_config.SetGenotypeType("haplo-diploid");
-      	   }
+      	else if (un_genotype_type == 1){ // Diploid
+      	   cGenotypeToInsert.SetDiploid();
       	}
+      	evaluation_config.InsertControlParameters( un_index, cGenotypeToInsert );
       	
       }
 

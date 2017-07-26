@@ -95,20 +95,20 @@ void CParallelEvolution::StartEvaluationProcess() {
    UInt32 unNumObjectives = m_pcPopulation->GetNumObjectives();
    Real fRecombinationFactor = m_pcPopulation->GetRecombinationFactor();
    
-   string sGenotypeType = m_pcPopulation->GetGenotypeType();
-   if (sGenotypeType.compare("haploid") == 0){
-      m_unGenotypeType = 0;
-   }
-   else if (sGenotypeType.compare("haplo-diploid") == 0){
-      m_unGenotypeType = 1;
-   }
-   else if (sGenotypeType.compare("diploid") == 0){
-      m_unGenotypeType = 2;
-   }
-   else{
-      LOGERR << "[ERROR] Invalid genotype type " << sGenotypeType << std::endl;
-      exit(-1);
-   }
+   // string sGenotypeType = m_pcPopulation->GetGenotypeType();
+   // if (sGenotypeType.compare("haploid") == 0){
+   //    m_unGenotypeType = 0;
+   // }
+   // else if (sGenotypeType.compare("haplo-diploid") == 0){
+   //    m_unGenotypeType = 1;
+   // }
+   // else if (sGenotypeType.compare("diploid") == 0){
+   //    m_unGenotypeType = 2;
+   // }
+   // else{
+   //    LOGERR << "[ERROR] Invalid genotype type " << sGenotypeType << std::endl;
+   //    exit(-1);
+   // }
    
    string sDominanceType = m_pcPopulation->GetDominanceType();
    UInt32 unDominanceType;
@@ -134,7 +134,6 @@ void CParallelEvolution::StartEvaluationProcess() {
       m_cEvaluatorComm.Send(&unNumObjectives, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(&fRecombinationFactor, 1, MPI_ARGOSREAL, tid, 1);
       
-      m_cEvaluatorComm.Send(&m_unGenotypeType, 1, MPI_INT, tid, 1);
       m_cEvaluatorComm.Send(&unDominanceType, 1, MPI_INT, tid, 1);
 
       // initialise the map that associate to each spawned process the individual that it is evaluating
@@ -242,7 +241,8 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    // sending control parameters
    UInt32 unNumControllers = pc_evaluation_config->GetNumControllers();
    TMapParamters map_controllers = pc_evaluation_config->GetMapControlParameters();
-   Real pf_control_parameters[m_pcPopulation->GetGenotypeSize()];
+   Real pf_control_parameters_allele1[m_pcPopulation->GetGenotypeSize()];
+   Real pf_control_parameters_allele2[m_pcPopulation->GetGenotypeSize()];
    
    m_cEvaluatorComm.Send(&unNumControllers, 1, MPI_INT, tid, 1);
    
@@ -251,34 +251,20 @@ void CParallelEvolution::SendIndividualParameters( UInt32 individualNumber ) {
    for( TMapParamtersIterator it = map_controllers.begin(); it != map_controllers.end(); ++it ) {
       UInt32 un_index = it->first;
       m_cEvaluatorComm.Send(&un_index, 1, MPI_INT, tid, 1);
-      if(m_unGenotypeType == 0){ // Haploid case has the same protocol as before
-         vector<Real> values = it->second.GetValues();
-         std::copy(values.begin(), values.end(), pf_control_parameters);
-         
-         m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);   
-      }
-      else if (m_unGenotypeType == 1){ // Haplo-diploid case, new protocol
-         if(un_index == 0){
-            CDiploidGenotype& cQueenGenotype = dynamic_cast<CDiploidGenotype&>(it->second);
-            vector<Real> values_allele1 = cQueenGenotype.GetAlleles1().GetValues();
-            std::copy(values_allele1.begin(), values_allele1.end(), pf_control_parameters);
-            m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);   
+      
+      CGenotype cGenotypeToSend = it->second;
+      UInt32 unGenotypeType = cGenotypeToSend.IsDiploid()?1:0;
+      
+      m_cEvaluatorComm.Send(&unGenotypeType, 1, MPI_INT, tid, 1);
+      
+      vector<Real> values_allele1 = cGenotypeToSend.GetAlleles1().GetValues();
+      std::copy(values_allele1.begin(), values_allele1.end(), pf_control_parameters_allele1);
+      m_cEvaluatorComm.Send(pf_control_parameters_allele1, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);   
             
-            vector<Real> values_allele2 = cQueenGenotype.GetAlleles2().GetValues();
-            std::copy(values_allele2.begin(), values_allele2.end(), pf_control_parameters);
-            m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);
-         }
-         else{
-            vector<Real> values = it->second.GetValues();
-            std::copy(values.begin(), values.end(), pf_control_parameters);
-         
-            m_cEvaluatorComm.Send(pf_control_parameters, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);   
-         }
-      }
-      else if (m_unGenotypeType == 2){ // Diploid case, unimplemented protocol
-         LOGERR << "[PARALLEL] Unimplemented MPI protocol for diplo-diploid pupulation." << std::endl;
-         exit(-1);
-      }
+      vector<Real> values_allele2 = cGenotypeToSend.GetAlleles2().GetValues();
+      std::copy(values_allele2.begin(), values_allele2.end(), pf_control_parameters_allele2);
+      m_cEvaluatorComm.Send(pf_control_parameters_allele2, m_pcPopulation->GetGenotypeSize(), MPI_ARGOSREAL, tid, 1);
+      
    }
 
    // sending evaluation random seeds

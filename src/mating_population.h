@@ -5,7 +5,6 @@
 
 #include "population.h"
 #include <utility/evaluation_config.h>
-#include <utility/diploid_genotype.h>
 
 using namespace std;
 using namespace argos;

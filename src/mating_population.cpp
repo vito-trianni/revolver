@@ -76,29 +76,23 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
          //TODO: this is random initialization
          //CGenotype cTeamMemberGenotype(m_pcRNG,m_unGenotypeSize, m_cGenotypeValueRange);
          //Instead we want monomorphic
-         Real pf_control_parameters[m_unGenotypeSize];
+         Real pf_control_parameters_allele1[m_unGenotypeSize];
+         Real pf_control_parameters_allele2[m_unGenotypeSize];
          for(UInt32 k = 0 ; k < m_unGenotypeSize ; ++k){
-            pf_control_parameters[k] = m_fMonomorphicInitGenotype;
+            pf_control_parameters_allele1[k] = m_fMonomorphicInitGenotype;
+            pf_control_parameters_allele2[k] = m_fMonomorphicInitGenotype;
          }
+         CGenotype cTeamMemberGenotype(m_unGenotypeSize,pf_control_parameters_allele1,pf_control_parameters_allele2,m_cGenotypeValueRange);
+         cTeamMemberGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
+         cTeamMemberGenotype.SetRNG(m_pcRNG);
          
          if( ((m_sGenotypeType.compare(GENOTYPE_TYPE_HAPLO_DIPLOID) == 0) && (j == 0) )  || (m_sGenotypeType.compare(GENOTYPE_TYPE_DIPLOID) == 0) ){
-            Real pf_control_parameters_allele2[m_unGenotypeSize];
-            for(UInt32 k = 0 ; k < m_unGenotypeSize ; ++k){
-               pf_control_parameters_allele2[k] = m_fMonomorphicInitGenotype;
-            }
-            CDiploidGenotype cDiploidGenotype(m_unGenotypeSize, pf_control_parameters, pf_control_parameters_allele2, m_cGenotypeValueRange);
-            cDiploidGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
-            cDiploidGenotype.SetRNG(m_pcRNG);
-         
-            cSingleTeamEC->InsertControlParameters(j,cDiploidGenotype);   
+            cTeamMemberGenotype.SetDiploid();
          }
          else{
-            CGenotype cTeamMemberGenotype(m_unGenotypeSize,pf_control_parameters,m_cGenotypeValueRange);
-            cTeamMemberGenotype.SetID(nGenotypeUniqueID); // Each genotype is indexed in [0,M*m]
-            cTeamMemberGenotype.SetRNG(m_pcRNG);
-         
-            cSingleTeamEC->InsertControlParameters(j,cTeamMemberGenotype);   
+            cTeamMemberGenotype.SetHaploid();
          }
+         cSingleTeamEC->InsertControlParameters(j,cTeamMemberGenotype);
          
          // insert a fake team member
          team.Insert(j);

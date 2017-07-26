@@ -27,13 +27,56 @@ class CGenotype : public CControlParameters {
    CObjectives m_cPerformance;
    CVector<UInt32> m_cAncestors;
    
+   CControlParameters m_cAlleles1;
+   CControlParameters m_cAlleles2;
+    
+   string m_sDominanceType;
+   
+   bool m_bIsDiploid;
+   
  public:
    CGenotype();
    CGenotype( const CGenotype& c_genotype );
-   CGenotype( UInt32 un_num_values, const Real* pf_values, const CRange<Real>& param_range = CRange<Real>(0,1) );
-   CGenotype( const vector<Real>& params, const CRange<Real>& param_range = CRange<Real>(0,1) );
+   CGenotype( UInt32 un_num_values, const Real* pf_values_alleles1, const Real* pf_values_alleles2, const CRange<Real>& param_range = CRange<Real>(0,1) );
+   CGenotype( const vector<Real>& params_allele1, const vector<Real>& params_allele2, const CRange<Real>& param_range = CRange<Real>(0,1) );
    CGenotype( CRandom::CRNG* pc_RNG, UInt32 un_num_values, const CRange<Real>& param_range );
    ~CGenotype();
+   
+   inline void SetDiploid(){m_bIsDiploid = true;};
+   inline void SetHaploid(){m_bIsDiploid = false;};
+   inline bool IsDiploid(){return m_bIsDiploid;};
+   
+   inline CControlParameters& GetAlleles1() { return m_cAlleles1;  };
+   inline CControlParameters& GetAlleles2() { return m_cAlleles2;  };
+   
+   inline void SetAlleles1(CControlParameters& c_alleles_1){m_cAlleles1 = c_alleles_1;};
+   inline void SetAlleles2(CControlParameters& c_alleles_2){m_cAlleles2 = c_alleles_2;};
+    
+   
+   inline const UInt32 GetSize() const {
+    if(m_bIsDiploid){
+     if(m_cAlleles1.GetSize() != m_cAlleles2.GetSize()) {
+      LOGERR << "[ERROR] Very weird diploid alleles with different sizes. ";
+       exit(-1);
+      }
+     }
+     return m_cAlleles1.GetSize();
+   };
+   
+   inline vector<Real>& GetValues() {
+    if(!m_bIsDiploid){
+     return m_cAlleles1.GetValues();
+    }
+    else{
+     LOGERR << "[GENOTYPE] The method GetValues() should not be called directly if one is dealing with a diploid genotype" << std::endl;
+     exit(-1);
+     return m_cAlleles1.GetValues();
+    }
+   };
+   
+   inline void SetDominanceType(const string s_dominance_type){m_sDominanceType = s_dominance_type;};
+   
+   void GenotypeToPhenotypeMapping();
 
    inline void SetRNG( CRandom::CRNG* pc_rng ) { m_pcRNG = pc_rng; };
    
@@ -53,8 +96,6 @@ class CGenotype : public CControlParameters {
    inline void InsertAncestor(UInt32 un_index) {m_cAncestors.Insert(un_index);};
    inline const CVector<UInt32>& GetAncestors() { return m_cAncestors;};
    inline void SetAncestors(const CVector<UInt32> c_ancestors) { m_cAncestors = c_ancestors;};
-   
-   inline void GenotypeToPhenotypeMapping(){};
 
    CGenotype& operator=(const CGenotype& c_genotype );
 

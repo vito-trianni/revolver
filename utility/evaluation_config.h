@@ -13,7 +13,6 @@
 #include "vector.h"
 #include "objectives.h"
 #include "genotype.h"
-#include "diploid_genotype.h"
 
 using namespace argos;
 using namespace std;
@@ -92,7 +91,7 @@ class CEvaluationConfig : public CBaseConfigurableResource {
 
    virtual CGenotype GetOffspringGenotype(CRandom::CRNG* pc_rng);
    virtual CGenotype ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rng);
-   virtual CDiploidGenotype ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng);
+   virtual CGenotype ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng);
 
    friend ostream& operator <<( ostream& os, const CEvaluationConfig& c_ec );
 

@@ -141,7 +141,8 @@ CEvaluationConfig GenerateFoundingTeam(){
          LOG << "Setting genotype of founding team to " << pf_control_parameters[k] << std::endl;
          uGenotypeCounter++;
       }
-      CGenotype cTeamMemberGenotype(un_genotype_length,pf_control_parameters,c_genotype_value_range);
+      CGenotype cTeamMemberGenotype(un_genotype_length,pf_control_parameters,pf_control_parameters,c_genotype_value_range);
+      cTeamMemberGenotype.SetHaploid();
       cTeamMemberGenotype.SetID(j); 
       cTeamMemberGenotype.SetRNG(cSimulator.GetRNG());
       

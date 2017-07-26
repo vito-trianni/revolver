@@ -162,9 +162,9 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 /****************************************/
 /****************************************/
 
-CDiploidGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
+CGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
    
-   CDiploidGenotype& cMotherGenotype = dynamic_cast<CDiploidGenotype&>(GetControlParameters(0));
+   CGenotype& cMotherGenotype = GetControlParameters(0);
    
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
@@ -186,8 +186,9 @@ CDiploidGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG*
    
    if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
       
-      CDiploidGenotype cOffspringGenotype(cMotherInheritedAllele,cFatherInheritedAllele,cMotherGenotype.GetRange());
+      CGenotype cOffspringGenotype(cMotherInheritedAllele,cFatherInheritedAllele,cMotherGenotype.GetRange());
       cOffspringGenotype.Reset();
+      cOffspringGenotype.SetDiploid();
       cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
       cOffspringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
       return cOffspringGenotype;
@@ -222,8 +223,9 @@ CDiploidGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG*
             pf_control_parameters_allele2[i] = cFatherInheritedAllele[i];
          }
       }
-      CDiploidGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters_allele1,pf_control_parameters_allele2,cMotherGenotype.GetRange());
+      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters_allele1,pf_control_parameters_allele2,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
+      offSpringGenotype.SetDiploid();
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
@@ -237,7 +239,7 @@ CDiploidGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG*
 /****************************************/
 
 CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
-   CDiploidGenotype& cMotherGenotype = dynamic_cast<CDiploidGenotype&>(GetControlParameters(0));
+   CGenotype& cMotherGenotype = GetControlParameters(0);
    
    vector<Real> cMotherAllele1 = cMotherGenotype.GetAlleles1().GetValues();;
    vector<Real> cMotherAllele2 = cMotherGenotype.GetAlleles2().GetValues();;
@@ -248,14 +250,16 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
    if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
       Real fMotherAlleleChoiceRandom = pc_rng->Uniform(CRange<Real>(0.0,1.0));
       if(fMotherAlleleChoiceRandom < 0.5){
-         CGenotype cOffspringGenotype(cMotherAllele1,cMotherGenotype.GetRange());
+         CGenotype cOffspringGenotype(cMotherAllele1,cMotherAllele1,cMotherGenotype.GetRange());
          cOffspringGenotype.Reset();
+         cOffspringGenotype.SetHaploid();
          cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
          return cOffspringGenotype;
       }
       else{
-         CGenotype cOffspringGenotype(cMotherAllele2,cMotherGenotype.GetRange());
+         CGenotype cOffspringGenotype(cMotherAllele2,cMotherAllele2,cMotherGenotype.GetRange());
          cOffspringGenotype.Reset();
+         cOffspringGenotype.SetHaploid();
          cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
          return cOffspringGenotype;
       }   
@@ -285,8 +289,9 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
             pf_control_parameters[i] = cMotherAllele1[i];
          }
       }
-      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
+      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,pf_control_parameters,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
+      offSpringGenotype.SetHaploid();
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       return offSpringGenotype;     
    }
@@ -348,8 +353,9 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
             pf_control_parameters[i] = vecMotherValues[i];
          }
       }
-      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,cMotherGenotype.GetRange());
+      CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,pf_control_parameters,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
+      offSpringGenotype.SetHaploid();
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
