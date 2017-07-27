@@ -67,8 +67,6 @@ void CMatingPopulation::Init( TConfigurationNode& t_configuration_tree ) {
       cSingleTeamEC->SetRecombinationFactor(m_fRecombinationFactor);
       cSingleTeamEC->SetIndividualIndex(i); // This is the ID of the mother. There are M ids.
       
-      cSingleTeamEC->SetGenotypeType(m_sGenotypeType);
-      
       // build a fake team
       TTeam team;
       

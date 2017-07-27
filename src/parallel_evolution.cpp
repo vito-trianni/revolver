@@ -110,18 +110,7 @@ void CParallelEvolution::StartEvaluationProcess() {
    //    exit(-1);
    // }
    
-   string sDominanceType = m_pcPopulation->GetDominanceType();
-   UInt32 unDominanceType;
-   if (sDominanceType.compare("dominance") == 0){
-      unDominanceType = 0;
-   }
-   else if (sDominanceType.compare("codominance") == 0){
-      unDominanceType = 1;
-   }
-   else{
-      LOGERR << "[ERROR] Invalid dominance type " << sDominanceType << std::endl;
-      exit(-1);
-   }
+   UInt32 unDominanceType = m_pcPopulation->GetDominanceType();
 
    for( UInt32 tid = 0; tid < m_unNumProcesses; ++tid ) {
       LOG << "[REVOLVER] sending initialisation parameters to child process (tid = " << tid << ")" << endl;

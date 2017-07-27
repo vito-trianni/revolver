@@ -177,26 +177,6 @@ int main(int argc, char** argv) {
       evaluation_config.SetTeams(un_num_teams*un_team_size,pun_teams);
       evaluation_config.SetRecombinationFactor(f_recombination_factor);
       
-      // switch(un_genotype_type){
-      //    case 0:{
-      //       evaluation_config.SetGenotypeType("haploid");
-      //       break;
-      //    }
-      //    case 1:{
-      //       evaluation_config.SetGenotypeType("haplo-diploid");
-      //       break;
-      //    }
-      //    case 2:{
-      //       evaluation_config.SetGenotypeType("diploid");
-      //       break;
-      //    }
-      //    default:{
-      //       LOGERR << "[INVALID-ERROR] Invalid genotype type was received from the master." << std::endl;
-      //       exit(-1);
-      //       break;
-      //    }
-      // }
-
       // receiving control parameters
       parent_comm.Recv( &un_num_genotypes, 1, MPI_INT, 0, 1);
 
@@ -218,6 +198,7 @@ int main(int argc, char** argv) {
       	else if (un_genotype_type == 1){ // Diploid
       	   cGenotypeToInsert.SetDiploid();
       	}
+      	cGenotypeToInsert.SetDominanceType(un_dominance_type);
       	evaluation_config.InsertControlParameters( un_index, cGenotypeToInsert );
       	
       }

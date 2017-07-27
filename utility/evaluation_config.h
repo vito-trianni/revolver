@@ -36,8 +36,6 @@ class CEvaluationConfig : public CBaseConfigurableResource {
    CVector<UInt32> m_vecSampleSeeds;
    TVecObjectives m_vecResults;
    
-   string m_sGenotypeType;
-
  public:
    CEvaluationConfig();
    CEvaluationConfig( UInt32 un_num_teams, UInt32 un_team_size );
@@ -71,9 +69,6 @@ class CEvaluationConfig : public CBaseConfigurableResource {
    
    inline void SetRecombinationFactor(const Real f_recombination_factor){m_fRecombinationFactor = f_recombination_factor;};
    inline const Real GetRecombinationFactor(){return m_fRecombinationFactor;};
-   
-   inline void SetGenotypeType(const string s_genotype_type){m_sGenotypeType = s_genotype_type;};
-   inline const string GetGenotypeType(){return m_sGenotypeType;};
    
    inline const TTeam& GetTeam( UInt32 un_index ) const { return m_vecTeams[un_index]; };
    void InsertTeam( const UInt32 un_team_index, TTeam vec_team );

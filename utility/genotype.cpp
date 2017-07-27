@@ -1,7 +1,7 @@
 #include "genotype.h"
 
-const string DIPLOID_DOMINANCE_TYPE_DOMINANCE                  = "dominance";
-const string DIPLOID_DOMINANCE_TYPE_CODOMINANCE                = "codominance";
+const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE                  = 0;
+const UInt32 DIPLOID_DOMINANCE_TYPE_CODOMINANCE                = 1;
 
 /****************************************/
 /****************************************/
@@ -168,7 +168,7 @@ void CGenotype::GenotypeToPhenotypeMapping(){
    
    for(int i = 0; i < m_vecElements.size() ; ++i){
       if(m_bIsDiploid){
-         if (m_sDominanceType.compare(DIPLOID_DOMINANCE_TYPE_DOMINANCE) == 0){
+         if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_DOMINANCE){
             // Largest trait in absolute value
             if(Abs(GetAlleles1().GetElement(i)) > Abs(GetAlleles2().GetElement(i)) ){
                Insert(i,GetAlleles1().GetElement(i));
@@ -186,7 +186,7 @@ void CGenotype::GenotypeToPhenotypeMapping(){
                }
             }
          }
-         else if (m_sDominanceType.compare(DIPLOID_DOMINANCE_TYPE_CODOMINANCE) == 0){
+         else if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_CODOMINANCE){
             Insert(i,(GetAlleles1().GetElement(i) + GetAlleles2().GetElement(i)) / 2.0); // Average trait
             
          }

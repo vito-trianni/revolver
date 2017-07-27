@@ -30,7 +30,7 @@ class CGenotype : public CControlParameters {
    CControlParameters m_cAlleles1;
    CControlParameters m_cAlleles2;
     
-   string m_sDominanceType;
+   UInt32 m_unDominanceType;
    
    bool m_bIsDiploid;
    
@@ -74,7 +74,7 @@ class CGenotype : public CControlParameters {
     }
    };
    
-   inline void SetDominanceType(const string s_dominance_type){m_sDominanceType = s_dominance_type;};
+   inline void SetDominanceType(const UInt32 un_dominance_type){m_unDominanceType = un_dominance_type;};
    
    void GenotypeToPhenotypeMapping();
 

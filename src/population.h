@@ -94,7 +94,18 @@ class CPopulation : public CBaseConfigurableResource  {
    virtual string GetGenotypeType()const {return m_sGenotypeType;};
    
    // get the dominance type
-   virtual string GetDominanceType()const {return m_sDominanceType;};
+   virtual UInt32 GetDominanceType()const {
+      if(m_sDominanceType.compare("dominance") == 0){
+         return 0;
+      }
+      else if(m_sDominanceType.compare("codominance") == 0){
+         return 1;
+      }
+      else{
+         LOGERR << "[MATING POPULATION] Unimplemented dominance type." << std::endl;
+         exit(-1);
+      }
+   };
 
    // function to save the population and specific individuals
    inline virtual void Dump( const string& filename ) {LOG << "Population::Dump()" << endl;};

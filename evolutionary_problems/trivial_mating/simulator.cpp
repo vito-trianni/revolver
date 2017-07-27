@@ -140,13 +140,16 @@ void CSimulator::LoadExperiment(){
 void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
     for(UInt32 i = 0 ; i < m_unColonySize ; ++i){
         Agent cNewAgent = {};
-        string sGenotypeType = e_config->GetGenotypeType();
+        CGenotype cQueenGenotype = e_config->GetControlParameters(0);
+        
         CGenotype cOffSpringGenotype;
-        if (sGenotypeType.compare("haploid") == 0){
-            cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
-        }
-        else if (sGenotypeType.compare("haplo-diploid") == 0){
+        if (cQueenGenotype.IsDiploid()){
+            // Queen is diploid
             cOffSpringGenotype = e_config->ReproduceSexuallyHaploDiploid(m_pcRNG);
+        }
+        else {
+            // Queen is haploid
+            cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
         } 
         cOffSpringGenotype.GenotypeToPhenotypeMapping();
         
