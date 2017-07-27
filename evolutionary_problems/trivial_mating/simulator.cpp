@@ -151,14 +151,26 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
             // Queen is haploid
             cOffSpringGenotype = e_config->GetOffspringGenotype(m_pcRNG);
         } 
+		cOffSpringGenotype.SetRNG(m_pcRNG);
         cOffSpringGenotype.GenotypeToPhenotypeMapping();
         
         if(m_sModelType.compare(MODEL_TYPE_TWO_THRESHOLDS_DUARTE) == 0 && cOffSpringGenotype.GetSize() == 2){
-            cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
-            cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];
+			if(cOffSpringGenotype.IsDiploid()){
+				cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetPhenotype()[0];
+				cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetPhenotype()[1];
+			}
+			else{
+				cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
+				cNewAgent.m_fThresholdTaskB = cOffSpringGenotype.GetValues()[1];
+			}
         }
         else if(m_sModelType.compare(MODEL_TYPE_SINGLE_THRESHOLD) == 0 && cOffSpringGenotype.GetSize() == 1){
-            cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
+			if(cOffSpringGenotype.IsDiploid()){
+				cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetPhenotype()[0];
+			}
+			else{
+				cNewAgent.m_fThresholdTaskA = cOffSpringGenotype.GetValues()[0];
+			}
         }
         else{
             LOGERR << "[ERROR] Model type and combination with genotype size non existent. Model type: " << m_sModelType << ". Genotype size: " << cOffSpringGenotype.GetSize() << ". Exiting ..." << std::endl;

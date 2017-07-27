@@ -74,6 +74,10 @@ class CGenotype : public CControlParameters {
     }
    };
    
+   inline vector<Real>& GetPhenotype(){
+	   return CVector::GetValues();
+   }
+   
    inline void SetDominanceType(const UInt32 un_dominance_type){m_unDominanceType = un_dominance_type;};
    
    void GenotypeToPhenotypeMapping();
