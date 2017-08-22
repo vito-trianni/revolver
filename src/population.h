@@ -101,6 +101,12 @@ class CPopulation : public CBaseConfigurableResource  {
       else if(m_sDominanceType.compare("codominance") == 0){
          return 1;
       }
+      else if(m_sDominanceType.compare("dominance_pos") == 0){
+         return 2;
+      }
+      else if(m_sDominanceType.compare("dominance_neg") == 0){
+         return 3;
+      }
       else{
          LOGERR << "[MATING POPULATION] Unimplemented dominance type." << std::endl;
          exit(-1);

@@ -1,7 +1,10 @@
 #include "genotype.h"
 
-const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE                  = 0;
+const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE_ABS              = 0;
 const UInt32 DIPLOID_DOMINANCE_TYPE_CODOMINANCE                = 1;
+const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE_POS              = 2;
+const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE_NEG              = 3;
+
 
 /****************************************/
 /****************************************/
@@ -168,7 +171,7 @@ void CGenotype::GenotypeToPhenotypeMapping(){
    
    for(int i = 0; i < m_vecElements.size() ; ++i){
       if(m_bIsDiploid){
-         if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_DOMINANCE){
+         if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_DOMINANCE_ABS){
             // Largest trait in absolute value
             if(Abs(GetAlleles1().GetElement(i)) > Abs(GetAlleles2().GetElement(i)) ){
                Insert(i,GetAlleles1().GetElement(i));
@@ -189,6 +192,40 @@ void CGenotype::GenotypeToPhenotypeMapping(){
          else if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_CODOMINANCE){
             Insert(i,(GetAlleles1().GetElement(i) + GetAlleles2().GetElement(i)) / 2.0); // Average trait
             
+         }
+         else if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_DOMINANCE_POS){
+           if(GetAlleles1().GetElement(i) > GetAlleles2().GetElement(i) ){
+               Insert(i,GetAlleles1().GetElement(i));
+            }
+            else if (GetAlleles1().GetElement(i) < GetAlleles2().GetElement(i) ){
+               Insert(i,GetAlleles2().GetElement(i));
+            }
+            else{
+               Real fRandomAlleleChoice = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+               if(fRandomAlleleChoice < 0.5){
+                  Insert(i,GetAlleles1().GetElement(i));
+               }
+               else{
+                  Insert(i,GetAlleles2().GetElement(i));
+               }
+            }
+         }
+         else if (m_unDominanceType == DIPLOID_DOMINANCE_TYPE_DOMINANCE_NEG){
+           if(GetAlleles1().GetElement(i) < GetAlleles2().GetElement(i) ){
+               Insert(i,GetAlleles1().GetElement(i));
+            }
+            else if (GetAlleles1().GetElement(i) > GetAlleles2().GetElement(i) ){
+               Insert(i,GetAlleles2().GetElement(i));
+            }
+            else{
+               Real fRandomAlleleChoice = m_pcRNG->Uniform(CRange<Real>(0.0,1.0));
+               if(fRandomAlleleChoice < 0.5){
+                  Insert(i,GetAlleles1().GetElement(i));
+               }
+               else{
+                  Insert(i,GetAlleles2().GetElement(i));
+               }
+            }
          }
       }
       else{
