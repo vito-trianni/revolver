@@ -164,10 +164,13 @@ void CEvaluationConfig::SetTeams( const UInt32 un_num_values, const UInt32* pun_
 
 CGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
    
+   
    CGenotype& cMotherGenotype = GetControlParameters(0);
+   UInt32 unDominanceType = cMotherGenotype.GetDominanceType();
    
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
+   
    
    vector<Real> cMotherInheritedAllele;
    vector<Real> cFatherInheritedAllele;
@@ -183,12 +186,15 @@ CGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng
       cMotherInheritedAllele = cMotherGenotype.GetAlleles2().GetValues();
    }
    cFatherInheritedAllele = cFatherGenotype.GetValues();
+   //LOGERR << "[EC] Chosen father allele: " << cFatherGenotype.GetValues()[0] <<std::endl;
+
    
    if(fRecombineRandom >= m_fRecombinationFactor || uGenotypeSize == 1){// No recombination with 1-sized genotype
       
       CGenotype cOffspringGenotype(cMotherInheritedAllele,cFatherInheritedAllele,cMotherGenotype.GetRange());
       cOffspringGenotype.Reset();
       cOffspringGenotype.SetDiploid();
+      cOffspringGenotype.SetDominanceType(unDominanceType);
       cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
       cOffspringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
       return cOffspringGenotype;
@@ -226,6 +232,7 @@ CGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng
       CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters_allele1,pf_control_parameters_allele2,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
       offSpringGenotype.SetDiploid();
+      offSpringGenotype.SetDominanceType(unDominanceType);
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;
@@ -240,6 +247,9 @@ CGenotype CEvaluationConfig::ReproduceSexuallyHaploDiploid(CRandom::CRNG* pc_rng
 
 CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rng) {
    CGenotype& cMotherGenotype = GetControlParameters(0);
+   UInt32 unDominanceType = cMotherGenotype.GetDominanceType();
+   
+   //LOGERR << "[EC] Asexual reproduction Mother says dominance is " << unDominanceType << std::endl;
    
    vector<Real> cMotherAllele1 = cMotherGenotype.GetAlleles1().GetValues();;
    vector<Real> cMotherAllele2 = cMotherGenotype.GetAlleles2().GetValues();;
@@ -253,6 +263,7 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
          CGenotype cOffspringGenotype(cMotherAllele1,cMotherAllele1,cMotherGenotype.GetRange());
          cOffspringGenotype.Reset();
          cOffspringGenotype.SetHaploid();
+         cOffspringGenotype.SetDominanceType(unDominanceType); // Not used in case of Haploid
          cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
          return cOffspringGenotype;
       }
@@ -260,6 +271,7 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
          CGenotype cOffspringGenotype(cMotherAllele2,cMotherAllele2,cMotherGenotype.GetRange());
          cOffspringGenotype.Reset();
          cOffspringGenotype.SetHaploid();
+         cOffspringGenotype.SetDominanceType(unDominanceType);
          cOffspringGenotype.InsertAncestor(cMotherGenotype.GetID());
          return cOffspringGenotype;
       }   
@@ -292,6 +304,7 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
       CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,pf_control_parameters,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
       offSpringGenotype.SetHaploid();
+      offSpringGenotype.SetDominanceType(unDominanceType);
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       return offSpringGenotype;     
    }
@@ -303,7 +316,8 @@ CGenotype CEvaluationConfig::ReproduceAsexuallyHaploDiploid(CRandom::CRNG* pc_rn
 
 CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
    CGenotype& cMotherGenotype = GetControlParameters(0);
-
+   UInt32 unDominanceType = cMotherGenotype.GetDominanceType();
+   
    UInt32 nFatherID = pc_rng->Uniform(CRange<UInt32>(1,m_unTeamSize)); // The father is between 1 and m-1
    CGenotype& cFatherGenotype = GetControlParameters(nFatherID);
 
@@ -315,6 +329,8 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       if(fParentChoiceRandom < 0.5){
          CGenotype offSpringGenotype(cMotherGenotype);
          offSpringGenotype.Reset();
+         offSpringGenotype.SetHaploid();
+         offSpringGenotype.SetDominanceType(unDominanceType);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID()); // Should this be here?
          return offSpringGenotype;
@@ -322,6 +338,8 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       else{
          CGenotype offSpringGenotype(cFatherGenotype);
          offSpringGenotype.Reset();
+         offSpringGenotype.SetHaploid();
+         offSpringGenotype.SetDominanceType(unDominanceType);
          offSpringGenotype.InsertAncestor(cMotherGenotype.GetID()); // Should this be here?
          offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
          return offSpringGenotype;
@@ -356,6 +374,7 @@ CGenotype CEvaluationConfig::GetOffspringGenotype(CRandom::CRNG* pc_rng) {
       CGenotype offSpringGenotype(uGenotypeSize,pf_control_parameters,pf_control_parameters,cMotherGenotype.GetRange());
       offSpringGenotype.Reset();
       offSpringGenotype.SetHaploid();
+      offSpringGenotype.SetDominanceType(unDominanceType);
       offSpringGenotype.InsertAncestor(cMotherGenotype.GetID());
       offSpringGenotype.InsertAncestor(cFatherGenotype.GetID());
       return offSpringGenotype;

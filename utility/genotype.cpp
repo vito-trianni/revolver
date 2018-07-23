@@ -12,6 +12,7 @@ const UInt32 DIPLOID_DOMINANCE_TYPE_DOMINANCE_NEG              = 3;
 CGenotype::CGenotype() :
    m_pcRNG(NULL),
    m_unID(0),
+   m_unDominanceType(0),
    m_bIsDiploid(false)
 {}
 
@@ -24,6 +25,7 @@ CGenotype::CGenotype( const CGenotype& params ) :
    m_pcRNG(params.m_pcRNG),
    m_unID(params.m_unID),
    m_bIsDiploid(params.m_bIsDiploid),
+   m_unDominanceType(params.m_unDominanceType),
    m_cAlleles1(params.m_cAlleles1),
    m_cAlleles2(params.m_cAlleles2)
 {
@@ -43,6 +45,7 @@ CGenotype::CGenotype( UInt32 un_num_values, const Real* pf_values_alleles1, cons
     m_cAlleles1(CControlParameters(un_num_values, pf_values_alleles1, param_range)),
     m_cAlleles2(CControlParameters(un_num_values, pf_values_alleles2, param_range)),
     m_bIsDiploid(false),
+    m_unDominanceType(0),
     m_unID(0)
 {
 }
@@ -56,6 +59,7 @@ CGenotype::CGenotype( const vector<Real>& params_allele1, const vector<Real>& pa
    m_cAlleles2(CControlParameters(params_allele2, param_range)),
    m_pcRNG(NULL),
    m_bIsDiploid(false),
+   m_unDominanceType(0),
    m_unID(0)
 {
 }
@@ -67,6 +71,7 @@ CGenotype::CGenotype( const vector<Real>& params_allele1, const vector<Real>& pa
 CGenotype::CGenotype( CRandom::CRNG* pc_RNG, UInt32 un_num_values, const CRange<Real>& param_range ) :
    m_pcRNG(pc_RNG),
    m_bIsDiploid(false),
+   m_unDominanceType(0),
    m_unID(0)
 {
    for( UInt32 i = 0; i < un_num_values; i++ ) {
@@ -168,6 +173,7 @@ void CGenotype::CutOffMax() {
 /****************************************/
 
 void CGenotype::GenotypeToPhenotypeMapping(){
+   // LOGERR << "This is the initial phenotype " << GetPhenotype()[0] << std::endl;
    
    for(int i = 0; i < m_vecElements.size() ; ++i){
       if(m_bIsDiploid){
@@ -233,6 +239,9 @@ void CGenotype::GenotypeToPhenotypeMapping(){
       }
    }
    
+   // LOGERR << "An after all the mess it becomes this " << GetPhenotype()[0] << std::endl;
+   
+   
    
 }
 
@@ -247,6 +256,7 @@ CGenotype& CGenotype::operator=( const CGenotype& params ) {
       m_cAlleles1 = params.m_cAlleles1;
       m_cAlleles2 = params.m_cAlleles2;
       m_bIsDiploid = params.m_bIsDiploid;
+      m_unDominanceType = params.m_unDominanceType;
       dynamic_cast<CVector<Real>&>(*this) = params;
    }
 

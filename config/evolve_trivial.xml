@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <morevolver-configuration>
 <evolution
-  type = "parallel"
+  type = "sequential"
   invalid_name = "src/trivialMating"
   max_generation = "100"
   save_generation_step = "1"
@@ -15,15 +15,14 @@
   <population 
     type="mating_population"	
     population_size = "100"
-    genotype_size = "2"
+    genotype_size = "1"
     gene_value_range = "0:100"
     mutation_variance = "0.1"
     mutation_probability = "0.1"
     num_objectives = "7"
     recombination_factor = "0.5"
-    genotype_monomorphic_init_value = "10.0"
+    genotype_monomorphic_init_value = "0.0"
     founding_team_size = "2"
-    
     genotype_type = "haploid"
     dominance_type = "dominance"
     >

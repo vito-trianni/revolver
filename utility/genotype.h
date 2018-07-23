@@ -79,6 +79,7 @@ class CGenotype : public CControlParameters {
    }
    
    inline void SetDominanceType(const UInt32 un_dominance_type){m_unDominanceType = un_dominance_type;};
+   inline UInt32 GetDominanceType(){ return m_unDominanceType;};
    
    void GenotypeToPhenotypeMapping();
 

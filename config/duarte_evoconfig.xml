@@ -12,18 +12,18 @@
   alpha_stimulus_decrease_A     = "0.03"
   alpha_stimulus_decrease_B     = "0.03"
   switching_cost                = "8"
-  beta_fitness_weight_factor    = "0.75"
+  beta_fitness_weight_factor    = "0.5"
   sigma_fitness2                = "0.1"
   
-  fitness_to_use                = "strong_overall_log_acts"
+  fitness_to_use                = "weak_overall"
   fitness_averaging             = "geo"
   
-  write_results                 = "true"
-  write_results_time            = "true"
+  write_results                 = "false"
+  write_results_time            = "false"
   results_filename              = "/home/ubuntu/workspace/results.txt"
   results_endrune_basename      = "/home/ubuntu/workspace/endrun"
   
-  model_type                    = "two_thresholds"
+  model_type                    = "single_threshold"
   
   >
   

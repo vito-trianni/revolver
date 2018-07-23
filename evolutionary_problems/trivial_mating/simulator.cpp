@@ -138,6 +138,22 @@ void CSimulator::LoadExperiment(){
 /****************************************/
 
 void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
+    // LOGERR << std::endl;
+    
+    // CGenotype cQueenGenotype = e_config->GetControlParameters(0);
+    // if (cQueenGenotype.IsDiploid()){
+    //     // Queen is diploid
+    //     LOGERR << "[DEBUG DOMINANCE] Diploid queen." << std::endl; 
+    // }
+    // else{
+    //     LOGERR << "[DEBUG DOMINANCE] Haploid queen. PORCO DIO" << std::endl; 
+    // }
+    
+    // LOGERR << "[DEBUG DOMINANCE] Dominance type queen: " << cQueenGenotype.GetDominanceType() <<  std::endl; 
+    
+    // LOGERR << "[DEBUG DOMINANCE] Queen genotype A1: " << cQueenGenotype.GetAlleles1().GetValues()[0];
+    // LOGERR << " A2: " << cQueenGenotype.GetAlleles2().GetValues()[0] << std::endl; 
+    
     for(UInt32 i = 0 ; i < m_unColonySize ; ++i){
         Agent cNewAgent = {};
         CGenotype cQueenGenotype = e_config->GetControlParameters(0);
@@ -153,6 +169,9 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
         } 
 		cOffSpringGenotype.SetRNG(m_pcRNG);
         cOffSpringGenotype.GenotypeToPhenotypeMapping();
+        
+        // LOGERR << "[DEBUG DOMINANCE] Dominance type offspring: " << cOffSpringGenotype.GetDominanceType() <<  std::endl; 
+    
         
         if(m_sModelType.compare(MODEL_TYPE_TWO_THRESHOLDS_DUARTE) == 0 && cOffSpringGenotype.GetSize() == 2){
 			if(cOffSpringGenotype.IsDiploid()){
@@ -173,9 +192,13 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
 			}
         }
         else{
-            LOGERR << "[ERROR] Model type and combination with genotype size non existent. Model type: " << m_sModelType << ". Genotype size: " << cOffSpringGenotype.GetSize() << ". Exiting ..." << std::endl;
+            // LOGERR << "[ERROR] Model type and combination with genotype size non existent. Model type: " << m_sModelType << ". Genotype size: " << cOffSpringGenotype.GetSize() << ". Exiting ..." << std::endl;
             exit(-1);
         }
+        
+        // LOGERR << "[DEBUG DOMINANCE] Agent " << i << " thr A: " << cNewAgent.m_fThresholdTaskA << std::endl;
+        //LOGERR << ", thrB " << cNewAgent.m_fThresholdTaskB << std::endl;   
+        
         //LOG << "Created agent with A: " << cNewAgent.m_fThresholdTaskA << " and B " << cNewAgent.m_fThresholdTaskB << std::endl;
         cNewAgent.m_unCurrentTask = 0; // IDLE
         cNewAgent.m_unSwitchingTimestep = 0;
@@ -185,6 +208,8 @@ void CSimulator::SetControlParameters(CEvaluationConfig* e_config){
         agents.push_back(cNewAgent);
         
     }
+    
+    // LOGERR << std::endl;
 }
 
 /****************************************/
